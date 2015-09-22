@@ -51,6 +51,22 @@
 - (void)clearDrawing;
 
 /**
+ *  Undo the last paths, from the last touchBegan event
+ *
+ *  @note Call undoDrawing in JotViewController
+ *  to trigger this method.
+ */
+- (void)undo;
+
+/**
+ *  Redo the last undoed paths
+ *
+ *  @note Call redoDrawing in JotViewController
+ *  to trigger this method.
+ */
+- (void)redo;
+
+/**
  *  Refreshes the drawing, for instance after a canvas size change
  */
 - (void)refreshBitmap;

@@ -256,6 +256,16 @@
     [self.drawView clearDrawing];
 }
 
+- (void)undoDrawing
+{
+	[self.drawView undo];
+}
+
+- (void)redoDrawing
+{
+	[self.drawView redo];
+}
+
 - (void)clearText
 {
     self.textString = @"";
@@ -392,7 +402,7 @@
 
 	[coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
 		[self.drawView refreshBitmap];
-		[UIView animateWithDuration:0.2 animations:^{
+		[UIView animateWithDuration:0.2f animations:^{
 			self.drawView.alpha = 1;
 		}];
 	}];

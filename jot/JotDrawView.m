@@ -20,6 +20,8 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 @property (nonatomic, strong) UIImage *cachedImage;
 
 @property (nonatomic, strong) NSMutableArray *pathsArray;
+@property (nonatomic, strong) NSMutableArray *undoArray;
+@property (nonatomic, assign) NSInteger undoIndex;
 
 @property (nonatomic, strong) JotTouchBezier *bezierPath;
 @property (nonatomic, strong) NSMutableArray *pointsArray;
@@ -42,6 +44,8 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
         _strokeColor = [UIColor blackColor];
         
         _pathsArray = [NSMutableArray array];
+		_undoArray  = [NSMutableArray arrayWithObject:@0];
+		_undoIndex  = 0;
         
         _constantStrokeWidth = NO;
         
@@ -63,7 +67,9 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
     self.cachedImage = nil;
     
     [self.pathsArray removeAllObjects];
-    
+	[self.undoArray removeObjectsInRange:NSMakeRange(1, self.undoArray.count-1)];
+	self.undoIndex = 0;
+	
     self.bezierPath = nil;
     self.pointsCounter = 0;
     [self.pointsArray removeAllObjects];
@@ -76,6 +82,20 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
                         [self setNeedsDisplay];
                     }
                     completion:nil];
+}
+
+- (void)undo {
+	if (self.undoIndex > 0) {
+		self.undoIndex -= 1;
+		[self refreshBitmap];
+	}
+}
+
+- (void)redo {
+	if (self.undoIndex < self.undoArray.count-1) {
+		self.undoIndex += 1;
+		[self refreshBitmap];
+	}
 }
 
 #pragma mark - Properties
@@ -99,6 +119,14 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
     self.pointsCounter = 0;
     [self.pointsArray removeAllObjects];
     [self.pointsArray addObject:[JotTouchPoint withPoint:touchPoint]];
+	
+	// if undo happened, remove everything after undo state
+	if (self.undoIndex < self.undoArray.count-1) {
+		NSUInteger pathArrayFinalCount = [self.undoArray[self.undoIndex] integerValue];
+		[self.pathsArray removeObjectsInRange:NSMakeRange(pathArrayFinalCount, self.pathsArray.count - pathArrayFinalCount)];
+		NSUInteger undoFinalCount = self.undoIndex+1;
+		[self.undoArray removeObjectsInRange:NSMakeRange(undoFinalCount, self.undoArray.count - undoFinalCount)];
+	}
 }
 
 - (void)drawTouchMovedToPoint:(CGPoint)touchPoint
@@ -150,6 +178,9 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
     
     self.lastVelocity = self.initialVelocity;
     self.lastWidth = self.strokeWidth;
+	
+	[self.undoArray addObject:@(self.pathsArray.count)];
+	self.undoIndex = self.undoArray.count-1;
 }
 
 #pragma mark - Drawing
@@ -162,7 +193,6 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 	self.cachedImage = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 	[self setNeedsDisplay];
-
 }
 
 - (void)drawBitmap
@@ -195,7 +225,7 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 {
     [self.cachedImage drawInRect:rect];
 
-    [self.bezierPath jotDrawBezier];
+    [_bezierPath jotDrawBezier];
 }
 
 - (CGFloat)strokeWidthForVelocity:(CGFloat)velocity
@@ -252,7 +282,9 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 
 - (void)drawAllPaths
 {
-    for (NSObject *path in self.pathsArray) {
+	NSUInteger currentLastPathCount = [self.undoArray[self.undoIndex] integerValue];
+	for (int i=0; i < currentLastPathCount; i++) {
+		NSObject *path = self.pathsArray[i];
         if ([path isKindOfClass:[JotTouchBezier class]]) {
             [(JotTouchBezier *)path jotDrawBezier];
         } else if ([path isKindOfClass:[JotTouchPoint class]]) {
