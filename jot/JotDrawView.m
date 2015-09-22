@@ -154,9 +154,20 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 
 #pragma mark - Drawing
 
+- (void)refreshBitmap {
+	UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, [UIScreen mainScreen].scale);
+	
+	[self drawAllPaths];
+	
+	self.cachedImage = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	[self setNeedsDisplay];
+
+}
+
 - (void)drawBitmap
 {
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, [UIScreen mainScreen].scale);
+	UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, [UIScreen mainScreen].scale);
     
     if (self.cachedImage) {
         [self.cachedImage drawAtPoint:CGPointZero];

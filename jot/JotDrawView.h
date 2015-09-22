@@ -51,6 +51,11 @@
 - (void)clearDrawing;
 
 /**
+ *  Refreshes the drawing, for instance after a canvas size change
+ */
+- (void)refreshBitmap;
+
+/**
  *  Tells the JotDrawView to handle a touchesBegan event.
  *
  *  @param touchPoint The point in this view's coordinate

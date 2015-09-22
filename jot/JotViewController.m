@@ -382,4 +382,21 @@
     }
 }
 
+#pragma mark - Orientation
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+	[super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+	
+	self.drawView.alpha = 0;
+
+	[coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+		[self.drawView refreshBitmap];
+		[UIView animateWithDuration:0.2 animations:^{
+			self.drawView.alpha = 1;
+		}];
+	}];
+}
+
+
 @end
