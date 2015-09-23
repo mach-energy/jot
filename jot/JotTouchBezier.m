@@ -8,67 +8,101 @@
 
 #import "JotTouchBezier.h"
 
-NSUInteger const kJotDrawStepsPerBezier = 300;
+NSUInteger const kJotDrawStepsPerBezier = 30;
 
 @implementation JotTouchBezier
 
-+ (instancetype)withColor:(UIColor *)color
++ (instancetype)withStartPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint controlPoint1:(CGPoint)controlPoint1 controlPoint2:(CGPoint)controlPoint2
 {
-    JotTouchBezier *touchBezier = [JotTouchBezier new];
-    
-    touchBezier.strokeColor = color;
-    
-    return touchBezier;
+	return [[JotTouchBezier alloc] initWithStartPoint:startPoint endPoint:endPoint controlPoint1:controlPoint1 controlPoint2:controlPoint2];
 }
 
-- (void)jotDrawBezier
+- (instancetype)initWithStartPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint controlPoint1:(CGPoint)controlPoint1 controlPoint2:(CGPoint)controlPoint2
+{
+	self = [super init];
+	if (self) {
+		_path = CGPathCreateMutable();
+		CGPathMoveToPoint(_path, NULL, startPoint.x, startPoint.y);
+		CGPathAddCurveToPoint(_path, NULL, controlPoint1.x, controlPoint1.y, controlPoint2.x, controlPoint2.y, endPoint.x, endPoint.y);
+		self.startPoint = startPoint;
+		self.endPoint = endPoint;
+		self.controlPoint1 = controlPoint1;
+		self.controlPoint2 = controlPoint2;
+	}
+	return self;
+}
+
+- (void)dealloc
+{
+	CGPathRelease(_path);
+}
+
+- (void)jotDraw
 {
     if (self.constantWidth) {
-        UIBezierPath *bezierPath = [UIBezierPath new];
-        [bezierPath moveToPoint:self.startPoint];
-        [bezierPath addCurveToPoint:self.endPoint controlPoint1:self.controlPoint1 controlPoint2:self.controlPoint2];
-        bezierPath.lineWidth = self.startWidth;
-        bezierPath.lineCapStyle = kCGLineCapRound;
-        [self.strokeColor setStroke];
-        [bezierPath strokeWithBlendMode:kCGBlendModeNormal alpha:1.f];
+		[self drawStrategy1];
     } else {
-        [self.strokeColor setFill];
-        
-        CGFloat widthDelta = self.endWidth - self.startWidth;
-        
-        for (NSUInteger i = 0; i < kJotDrawStepsPerBezier; i++) {
-            
-            CGFloat t = ((CGFloat)i) / (CGFloat)kJotDrawStepsPerBezier;
-            CGFloat tt = t * t;
-            CGFloat ttt = tt * t;
-            CGFloat u = 1.f - t;
-            CGFloat uu = u * u;
-            CGFloat uuu = uu * u;
-            
-            CGFloat x = uuu * self.startPoint.x;
-            x += 3 * uu * t * self.controlPoint1.x;
-            x += 3 * u * tt * self.controlPoint2.x;
-            x += ttt * self.endPoint.x;
-            
-            CGFloat y = uuu * self.startPoint.y;
-            y += 3 * uu * t * self.controlPoint1.y;
-            y += 3 * u * tt * self.controlPoint2.y;
-            y += ttt * self.endPoint.y;
-            
-            CGFloat pointWidth = self.startWidth + (ttt * widthDelta);
-            [self.class jotDrawBezierPoint:CGPointMake(x, y) withWidth:pointWidth];
-        }
+		[self drawStrategy2];
     }
 }
 
-+ (void)jotDrawBezierPoint:(CGPoint)point withWidth:(CGFloat)width
-{
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    if (!context) {
-        return;
-    }
-    
-    CGContextFillEllipseInRect(context, CGRectInset(CGRectMake(point.x, point.y, 0.f, 0.f), -width / 2.f, -width / 2.f));
+- (void)drawStrategy1 {
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	if (!context) {
+		return;
+	}
+	CGContextAddPath(context, _path);
+	CGContextSetLineWidth(context, self.startWidth);
+	CGContextSetLineCap(context, kCGLineCapRound);
+	[self.strokeColor setStroke];
+	CGContextStrokePath(context);
+}
+
+- (void)drawStrategy2 {
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	if (!context) {
+		return;
+	}
+	CGFloat widthDelta = self.endWidth - self.startWidth;
+	
+	[self.strokeColor setStroke];
+	CGContextSetLineCap(context, kCGLineCapRound);
+	
+	for (NSUInteger i = 0; i <= kJotDrawStepsPerBezier; i++) {
+		
+		CGFloat t = ((CGFloat)i) / (CGFloat)kJotDrawStepsPerBezier;
+		CGFloat tt = t * t;
+		CGFloat ttt = tt * t;
+		CGFloat u = 1.f - t;
+		CGFloat uu = u * u;
+		CGFloat uuu = uu * u;
+		
+		CGFloat x = uuu * self.startPoint.x;
+		x += 3 * uu * t * self.controlPoint1.x;
+		x += 3 * u * tt * self.controlPoint2.x;
+		x += ttt * self.endPoint.x;
+		
+		CGFloat y = uuu * self.startPoint.y;
+		y += 3 * uu * t * self.controlPoint1.y;
+		y += 3 * u * tt * self.controlPoint2.y;
+		y += ttt * self.endPoint.y;
+		
+		CGFloat pointWidth = self.startWidth + (ttt * widthDelta);
+		
+		if (i > 0) {
+			CGContextAddLineToPoint(context, x, y);
+			CGContextSetLineWidth(context, pointWidth);
+			CGContextStrokePath(context);
+		}
+		CGContextMoveToPoint(context, x, y);
+	}
+}
+
+
+- (CGRect)rect {
+	CGRect boundingBox = CGPathGetBoundingBox(_path);
+	CGFloat largestWidth = -MAX(self.startWidth, self.endWidth)/2;
+	return CGRectInset(boundingBox, largestWidth, largestWidth);
 }
 
 @end

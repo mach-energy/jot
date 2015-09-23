@@ -30,7 +30,7 @@
 {
     [super touchesEnded:touches withEvent:event];
     
-    [self.delegate jotDrawingContainerTouchEnded];
+	[self.delegate jotDrawingContainerTouchEndedAtPoint:[[touches anyObject] locationInView:self]];
 }
 
 @end

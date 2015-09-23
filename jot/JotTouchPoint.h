@@ -6,8 +6,7 @@
 //
 //
 
-#import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
+#import "JotTouchObject.h"
 
 /**
  *  Private class to handle timestamped touch events for drawing
@@ -15,7 +14,7 @@
  *  representing single-touch-point events for drawing dots of
  *  a given width and color in the JotDrawView.
  */
-@interface JotTouchPoint : NSObject
+@interface JotTouchPoint : JotTouchObject
 
 /**
  *  The CGPoint where the touch event occurred.
@@ -28,11 +27,6 @@
  *  the stroke width can be made thinner or wider accordingly.
  */
 @property (nonatomic, strong) NSDate *timestamp;
-
-/**
- *  The stroke color to use for drawing this as a single-touch-point dot.
- */
-@property (nonatomic, strong) UIColor *strokeColor;
 
 /**
  *  The stroke width to use for drawing this as a single-touch-point dot.
@@ -64,5 +58,10 @@
  *  @return The CGPoint value of this JotTouchPoint
  */
 - (CGPoint)CGPointValue;
+
+/**
+ *  Draw the point on current context
+ */
+- (void)jotDraw;
 
 @end

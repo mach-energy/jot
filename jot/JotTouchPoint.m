@@ -34,4 +34,20 @@
     return self.point;
 }
 
+- (void)jotDraw
+{
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	if (!context) {
+		return;
+	}
+	[self.strokeColor setFill];
+	CGContextFillEllipseInRect(context, self.rect);
+
+}
+
+- (CGRect)rect
+{
+	return CGRectInset(CGRectMake(self.point.x, self.point.y, 0.f, 0.f), -self.strokeWidth / 2.f, -self.strokeWidth / 2.f);
+}
+
 @end

@@ -355,10 +355,10 @@
     }
 }
 
-- (void)jotDrawingContainerTouchEnded
+- (void)jotDrawingContainerTouchEndedAtPoint:(CGPoint)touchPoint
 {
     if (self.state == JotViewStateDrawing) {
-        [self.drawView drawTouchEnded];
+        [self.drawView drawTouchEndedAtPoint:touchPoint];
     }
 }
 

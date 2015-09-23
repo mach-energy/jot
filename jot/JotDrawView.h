@@ -96,10 +96,13 @@
 /**
  *  Tells the JotDrawView to handle a touchesEnded event.
  *
+ *  @param touchPoint The point in this view's coordinate
+ *  system where the touch ended.
+ *
  *  @note This method is triggered by the JotDrawController's
  *  touchesEnded event.
  */
-- (void)drawTouchEnded;
+- (void)drawTouchEndedAtPoint:(CGPoint)touchPoint;
 
 /**
  *  Overlays the drawing on the given background image, rendering

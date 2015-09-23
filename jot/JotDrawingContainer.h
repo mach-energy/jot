@@ -41,7 +41,10 @@
 
 /**
  *  Tells the delegate to handle a touchesEnded event.
+ *
+ *  @param touchPoint The point in this view's coordinate
+ *  system where the touch ended.
  */
-- (void)jotDrawingContainerTouchEnded;
+- (void)jotDrawingContainerTouchEndedAtPoint:(CGPoint)touchPoint;
 
 @end
