@@ -321,23 +321,30 @@
 
 - (UIImage *)renderDrawTextViewWithSize:(CGSize)size
 {
-    return [self drawTextImageWithSize:size
-                       backgroundImage:nil];
+	CGFloat scale = size.width / CGRectGetWidth(self.bounds);
+    return [self drawTextImageWithScale:scale
+						backgroundImage:nil];
 }
 
 - (UIImage *)drawTextOnImage:(UIImage *)image
 {
-    return [self drawTextImageWithSize:image.size backgroundImage:image];
+    return [self drawTextImageWithScale:1.f backgroundImage:image];
 }
 
-- (UIImage *)drawTextImageWithSize:(CGSize)size backgroundImage:(UIImage *)backgroundImage
+- (UIImage *)drawTextImageWithScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
 {
-    CGFloat scale = size.width / CGRectGetWidth(self.bounds);
+	CGSize size;
+	if (backgroundImage) {
+		CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, backgroundImage.size.width, backgroundImage.size.height));
+		size = maxRect.size;
+	}
+	else {
+		size = self.bounds.size;
+	}
+    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
     
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, scale);
-    
-    [backgroundImage drawInRect:CGRectMake(0.f, 0.f, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds))];
-    
+	[backgroundImage drawAtPoint:CGPointZero];
+	
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
     
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();

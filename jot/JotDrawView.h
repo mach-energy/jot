@@ -107,10 +107,17 @@
 /**
  *  Overlays the drawing on the given background image, rendering
  *  the drawing at the full resolution of the image.
+ *  The canvas position and the image share the same top left corner and
+ *  the resulting image size is the maximum size beetween canvas size and image
+ *  size.
  *
  *  @param image The background image to draw on top of.
  *
  *  @return An image of the rendered drawing on the background image.
+ *
+ *  @warning While drawing over an UIImageView, be sure to present the image at
+ *  full resolution. UIViewContentModeTopLeft content mode should be used instead
+ *  of content modes that change the image scale (eg: UIViewContentModeScale*)
  *
  *  @note Call drawOnImage: in JotViewController
  *  to trigger this method.

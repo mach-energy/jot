@@ -228,23 +228,30 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 
 - (UIImage *)renderDrawingWithSize:(CGSize)size
 {
-    return [self drawAllPathsImageWithSize:size
-                           backgroundImage:nil];
+    CGFloat scale = size.width / CGRectGetWidth(self.bounds);
+    return [self drawAllPathsImageScale:scale
+						backgroundImage:nil];
 }
 
 - (UIImage *)drawOnImage:(UIImage *)image
 {
-    return [self drawAllPathsImageWithSize:image.size backgroundImage:image];
+	return [self drawAllPathsImageScale:1.f backgroundImage:image];
 }
 
-- (UIImage *)drawAllPathsImageWithSize:(CGSize)size backgroundImage:(UIImage *)backgroundImage
+- (UIImage *)drawAllPathsImageScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
 {
-    CGFloat scale = size.width / CGRectGetWidth(self.bounds);
+	CGSize size;
+	if (backgroundImage) {
+		CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, backgroundImage.size.width, backgroundImage.size.height));
+		size = maxRect.size;
+	}
+	else {
+		size = self.bounds.size;
+	}
+    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
     
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, scale);
-    
-    [backgroundImage drawInRect:CGRectMake(0.f, 0.f, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds))];
-    
+	[backgroundImage drawAtPoint:CGPointZero];
+	
     [self drawAllPaths];
     
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
