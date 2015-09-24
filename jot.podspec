@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
                           "Devin Foley" => "devin@ifttt.com" 
                           }
   #s.source		= { :git => "https://github.com/IFTTT/jot.git", :tag => s.version.to_s }
-  s.source    = { :git => "https://github.com/martinprot/jot"
+  s.source    = { :git => "https://github.com/martinprot/jot.git" }
 
   s.social_media_url	= 'https://twitter.com/skelovenko'
   s.platform		= :ios, '7.0'
