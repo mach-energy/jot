@@ -134,15 +134,13 @@
 
 - (void)setTextString:(NSString *)textString
 {
-    if (![_textString isEqualToString:textString]) {
-        _textString = textString;
-        if (![self.textView.textString isEqualToString:textString]) {
-            self.textView.textString = textString;
-        }
-        if (![self.textEditView.textString isEqualToString:textString]) {
-            self.textEditView.textString = textString;
-        }
-    }
+	_textString = textString;
+	if (![self.textView.textString isEqualToString:textString]) {
+		self.textView.textString = textString;
+	}
+	if (![self.textEditView.textString isEqualToString:textString]) {
+		self.textEditView.textString = textString;
+	}
 }
 
 - (void)setFont:(UIFont *)font

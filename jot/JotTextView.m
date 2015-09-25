@@ -63,10 +63,18 @@
 - (void)setTextString:(NSString *)textString
 {
 	if (_selectedLabel) {
-		CGPoint center = self.selectedLabel.center;
-		self.selectedLabel.text = textString;
-		[self.selectedLabel autosize];
-		self.selectedLabel.center = center;
+		if (textString.length == 0) {
+			// delete it.
+			[_labels removeObject:_selectedLabel];
+			[_selectedLabel removeFromSuperview];
+			self.selectedLabel = [_labels lastObject];
+		}
+		else {
+			CGPoint center = self.selectedLabel.center;
+			self.selectedLabel.text = textString;
+			[self.selectedLabel autosize];
+			self.selectedLabel.center = center;
+		}
 	}
 }
 
@@ -130,6 +138,12 @@
 		selectedLabel.selected = YES;
 		self.referenceCenter = selectedLabel.center;
 		_selectedLabel = selectedLabel;
+
+		// place the selected label at last array position
+		if (_selectedLabel != [_labels lastObject]) {
+			[_labels removeObject:_selectedLabel];
+			[_labels addObject:_selectedLabel];
+		}
 	}
 }
 
@@ -286,8 +300,10 @@
     
 	[backgroundImage drawAtPoint:CGPointZero];
 	
+	_selectedLabel.selected = NO; // remove the selection border
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
-    
+	_selectedLabel.selected = YES;
+	
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return [UIImage imageWithCGImage:drawnImage.CGImage
