@@ -10,6 +10,7 @@
 #import "JotDrawView.h"
 #import "JotTextView.h"
 #import "JotTextEditView.h"
+#import "JotLabel.h"
 #import <Masonry/Masonry.h>
 #import "UIImage+Jot.h"
 #import "JotDrawingContainer.h"
@@ -41,24 +42,22 @@
         self.drawingContainer.delegate = self;
         
         _font = self.textView.font;
-        self.textEditView.font = self.font;
         _fontSize = self.textView.fontSize;
-        self.textEditView.fontSize = self.fontSize;
-        _textAlignment = self.textView.textAlignment;
-        self.textEditView.textAlignment = NSTextAlignmentLeft;
+		_textAlignment = self.textView.textAlignment;
         _textColor = self.textView.textColor;
-        self.textEditView.textColor = self.textColor;
         _textString = @"";
         _drawingColor = self.drawView.strokeColor;
         _drawingStrokeWidth = self.drawView.strokeWidth;
         _textEditingInsets = self.textEditView.textEditingInsets;
         _initialTextInsets = self.textView.initialTextInsets;
         _state = JotViewStateDefault;
+		
+		self.textEditView.textAlignment = NSTextAlignmentLeft;
         
-        _pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchOrRotateGesture:)];
+        _pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchGesture:)];
         self.pinchRecognizer.delegate = self;
         
-        _rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchOrRotateGesture:)];
+        _rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotateGesture:)];
         self.rotationRecognizer.delegate = self;
         
         _panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
@@ -324,8 +323,25 @@
 
 - (void)handleTapGesture:(UIGestureRecognizer *)recognizer
 {
-    if (!(self.state == JotViewStateEditingText)) {
-        self.state = JotViewStateEditingText;
+    if (self.state == JotViewStateText) {
+		CGPoint touch = [recognizer locationOfTouch:0 inView:self.textView];
+		JotLabel *label = [self.textView labelAtPosition:touch];
+		if (label) {
+			if (label.selected) {
+				self.state = JotViewStateEditingText;
+			}
+			else {
+				[self.textView selectLabelAtPosition:touch];
+			}
+			self.textEditView.textString = label.text;
+		}
+		else {
+			label = [self.textView addLabelAtPosition:touch];
+			self.textEditView.textString = @"";
+			self.state = JotViewStateEditingText;
+		}
+		self.textEditView.font = label.font;
+		self.textEditView.textColor = label.textColor;
     }
 }
 
@@ -334,9 +350,14 @@
     [self.textView handlePanGesture:recognizer];
 }
 
-- (void)handlePinchOrRotateGesture:(UIGestureRecognizer *)recognizer
+- (void)handlePinchGesture:(UIGestureRecognizer *)recognizer
 {
     [self.textView handlePinchOrRotateGesture:recognizer];
+}
+
+- (void)handleRotateGesture:(UIGestureRecognizer *)recognizer
+{
+	[self.textView handlePinchOrRotateGesture:recognizer];
 }
 
 #pragma mark - JotDrawingContainer Delegate

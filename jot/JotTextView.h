@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+@class JotLabel;
+
 /**
  *  Private class to handle text display and gesture interactions.
  *  Change the properties in a JotViewController instance to 
@@ -90,6 +92,12 @@
  *  to trigger this method.
  */
 - (void)clearText;
+
+- (JotLabel*)labelAtPosition:(CGPoint)point;
+
+- (JotLabel*)selectLabelAtPosition:(CGPoint)point;
+
+- (JotLabel*)addLabelAtPosition:(CGPoint)point;
 
 /**
  *  Overlays the text on the given background image.

@@ -8,18 +8,18 @@
 
 #import "JotTextView.h"
 
+#import "JotLabel.h"
+
 @interface JotTextView ()
 
-@property (nonatomic, strong) UILabel *textLabel;
+@property (nonatomic, strong) JotLabel *selectedLabel;
+@property (nonatomic, strong) NSMutableArray <JotLabel*> *labels;
 @property (nonatomic, strong) UIView *textEditingContainer;
 @property (nonatomic, strong) UITextView *textEditingView;
-@property (nonatomic, assign) CGAffineTransform referenceRotateTransform;
-@property (nonatomic, assign) CGAffineTransform currentRotateTransform;
 @property (nonatomic, assign) CGPoint referenceCenter;
 @property (nonatomic, strong) UIPinchGestureRecognizer *activePinchRecognizer;
 @property (nonatomic, strong) UIRotationGestureRecognizer *activeRotationRecognizer;
 @property (nonatomic, assign) CGFloat scale;
-@property (nonatomic, assign) CGRect labelFrame;
 
 @end
 
@@ -33,27 +33,15 @@
         
         _initialTextInsets = UIEdgeInsetsMake(0.f, 0.f, 0.f, 0.f);
         
-        _fontSize = 60.f;
+        CGFloat fontSize = 60.f;
         _scale = 1.f;
-        _font = [UIFont systemFontOfSize:self.fontSize];
+        _font = [UIFont systemFontOfSize:fontSize];
         _textAlignment = NSTextAlignmentCenter;
         _textColor = [UIColor whiteColor];
-        _textString = @"";
-        _textLabel = [UILabel new];
-        if (self.fitOriginalFontSizeToViewWidth) {
-            self.textLabel.numberOfLines = 0;
-        }
-        self.textLabel.font = self.font;
-        self.textLabel.textColor = self.textColor;
-        self.textLabel.textAlignment = self.textAlignment;
-        self.textLabel.center = CGPointMake(CGRectGetMidX([UIScreen mainScreen].bounds),
-                                            CGRectGetMidY([UIScreen mainScreen].bounds));
-        self.referenceCenter = CGPointZero;
-        [self sizeLabel];
-        [self addSubview:self.textLabel];
-        
-        _referenceRotateTransform = CGAffineTransformIdentity;
-        _currentRotateTransform = CGAffineTransformIdentity;
+		
+		_labels = [NSMutableArray new];
+		
+		self.referenceCenter = CGPointZero;
         
         self.userInteractionEnabled = NO;
     }
@@ -61,162 +49,123 @@
     return self;
 }
 
-#pragma mark - Layout Subviews
-
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    
-    if (CGPointEqualToPoint(self.referenceCenter, CGPointZero)) {
-        self.textLabel.center = CGPointMake(CGRectGetMidX(self.bounds),
-                                            CGRectGetMidY(self.bounds));
-    }
-}
-
 #pragma mark - Undo
 
 - (void)clearText
 {
-    self.scale = 1.f;
-    self.textLabel.transform = CGAffineTransformIdentity;
-    self.textString = @"";
+	self.selectedLabel.scale = 1.f;
+    self.selectedLabel.transform = CGAffineTransformIdentity;
+    self.selectedLabel.text = @"";
 }
 
 #pragma mark - Properties
 
 - (void)setTextString:(NSString *)textString
 {
-    if (![_textString isEqualToString:textString]) {
-        _textString = textString;
-        CGPoint center = self.textLabel.center;
-        self.textLabel.text = textString;
-        [self sizeLabel];
-        self.textLabel.center = center;
-    }
-}
-
-- (void)setScale:(CGFloat)scale
-{
-    if (_scale != scale) {
-        _scale = scale;
-        self.textLabel.transform = CGAffineTransformIdentity;
-        CGPoint labelCenter = self.textLabel.center;
-        CGRect scaledLabelFrame = CGRectMake(0.f,
-                                             0.f,
-                                             CGRectGetWidth(_labelFrame) * _scale * 1.05f,
-                                             CGRectGetHeight(_labelFrame) * _scale * 1.05f);
-        CGFloat currentFontSize = self.fontSize * _scale;
-        self.textLabel.font = [self.font fontWithSize:currentFontSize];
-        self.textLabel.frame = scaledLabelFrame;
-        self.textLabel.center = labelCenter;
-        self.textLabel.transform = self.currentRotateTransform;
-    }
+	if (_selectedLabel) {
+		CGPoint center = self.selectedLabel.center;
+		self.selectedLabel.text = textString;
+		[self.selectedLabel autosize];
+		self.selectedLabel.center = center;
+	}
 }
 
 - (void)setFontSize:(CGFloat)fontSize
 {
-    if (_fontSize != fontSize) {
-        _fontSize = fontSize;
-        [self adjustLabelFont];
+	_fontSize = fontSize;
+    if (_selectedLabel) {
+		self.selectedLabel.unscaledFontSize = fontSize;
+		[self.selectedLabel refreshFont];
     }
 }
 
 - (void)setFont:(UIFont *)font
 {
-    if (_font != font) {
-        _font = font;
-        [self adjustLabelFont];
+	_font = font;
+    if (_selectedLabel) {
+		self.selectedLabel.font = font;
+		[self.selectedLabel refreshFont];
     }
 }
 
 - (void)setTextAlignment:(NSTextAlignment)textAlignment
 {
-    if (_textAlignment != textAlignment) {
-        _textAlignment = textAlignment;
-        self.textLabel.textAlignment = self.textAlignment;
-        [self sizeLabel];
+	_textAlignment = textAlignment;
+    if (_selectedLabel) {
+        self.selectedLabel.textAlignment = self.textAlignment;
+		[self.selectedLabel autosize];
     }
 }
 
 - (void)setInitialTextInsets:(UIEdgeInsets)initialTextInsets
 {
-    if (!UIEdgeInsetsEqualToEdgeInsets(_initialTextInsets, initialTextInsets)) {
-        _initialTextInsets = initialTextInsets;
-        [self sizeLabel];
+	_initialTextInsets = initialTextInsets;
+    if (_selectedLabel) {
+        self.selectedLabel.initialTextInsets = initialTextInsets;
+        [self.selectedLabel autosize];
     }
 }
 
 - (void)setFitOriginalFontSizeToViewWidth:(BOOL)fitOriginalFontSizeToViewWidth
 {
-    if (_fitOriginalFontSizeToViewWidth != fitOriginalFontSizeToViewWidth) {
-        _fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
-        self.textLabel.numberOfLines = (fitOriginalFontSizeToViewWidth ? 0 : 1);
-        [self sizeLabel];
+	_fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
+    if (_selectedLabel) {
+		self.selectedLabel.fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
+        self.selectedLabel.numberOfLines = (fitOriginalFontSizeToViewWidth ? 0 : 1);
+        [self.selectedLabel autosize];
     }
 }
 
 - (void)setTextColor:(UIColor *)textColor
 {
-    if (_textColor != textColor) {
-        _textColor = textColor;
-        self.textLabel.textColor = textColor;
+	_textColor = textColor;
+    if (_selectedLabel) {
+        self.selectedLabel.textColor = textColor;
     }
 }
 
-- (void)setLabelFrame:(CGRect)labelFrame
-{
-    if (!CGRectEqualToRect(_labelFrame, labelFrame)) {
-        _labelFrame = labelFrame;
-        CGPoint labelCenter = self.textLabel.center;
-        CGRect scaledLabelFrame = CGRectMake(0.f,
-                                             0.f,
-                                             CGRectGetWidth(_labelFrame) * _scale * 1.05f,
-                                             CGRectGetHeight(_labelFrame) * _scale * 1.05f);
-        CGAffineTransform labelTransform = self.textLabel.transform;
-        self.textLabel.transform = CGAffineTransformIdentity;
-        self.textLabel.frame = scaledLabelFrame;
-        self.textLabel.transform = labelTransform;
-        self.textLabel.center = labelCenter;
-    }
+- (void)setSelectedLabel:(JotLabel *)selectedLabel {
+	if (_selectedLabel != selectedLabel) {
+		_selectedLabel.selected = NO;
+		selectedLabel.selected = YES;
+		self.referenceCenter = selectedLabel.center;
+		_selectedLabel = selectedLabel;
+	}
 }
 
-#pragma mark - Format Text Label
+#pragma mark - Methods
 
-- (void)adjustLabelFont
-{
-    CGFloat currentFontSize = _fontSize * _scale;
-    CGPoint center = self.textLabel.center;
-    self.textLabel.font = [_font fontWithSize:currentFontSize];
-    [self sizeLabel];
-    self.textLabel.center = center;
+- (JotLabel*)labelAtPosition:(CGPoint)point {
+	for (JotLabel *label in _labels) {
+		if ([label.layer containsPoint:[label convertPoint:point fromView:self]]) {
+			return label;
+		}
+	}
+	return nil;
 }
 
-- (void)sizeLabel
-{
-    UILabel *temporarySizingLabel = [UILabel new];
-    temporarySizingLabel.text = _textString;
-    temporarySizingLabel.font = [_font fontWithSize:_fontSize];
-    temporarySizingLabel.textAlignment = _textAlignment;
-    
-    CGRect insetViewRect;
-    
-    if (_fitOriginalFontSizeToViewWidth) {
-        temporarySizingLabel.numberOfLines = 0;
-        insetViewRect = CGRectInset(self.bounds,
-                                           _initialTextInsets.left + _initialTextInsets.right,
-                                           _initialTextInsets.top + _initialTextInsets.bottom);
-    } else {
-        temporarySizingLabel.numberOfLines = 1;
-        insetViewRect = CGRectMake(0.f, 0.f, CGFLOAT_MAX, CGFLOAT_MAX);
-    }
-    
-    CGSize originalSize = [temporarySizingLabel sizeThatFits:insetViewRect.size];
-    temporarySizingLabel.frame = CGRectMake(0.f,
-                                            0.f,
-                                            originalSize.width * 1.05f,
-                                            originalSize.height * 1.05f);
-    temporarySizingLabel.center = self.textLabel.center;
-    self.labelFrame = temporarySizingLabel.frame;
+- (JotLabel*)selectLabelAtPosition:(CGPoint)point {
+	JotLabel *label = [self labelAtPosition:point];
+	if (label) {
+		self.selectedLabel = label;
+	}
+	return label;
+}
+
+- (JotLabel*)addLabelAtPosition:(CGPoint)point {
+	self.selectedLabel = [JotLabel new];
+	if (self.fitOriginalFontSizeToViewWidth) {
+		self.selectedLabel.numberOfLines = 0;
+	}
+	self.selectedLabel.font = self.font;
+	self.selectedLabel.unscaledFontSize = self.font.pointSize;
+	self.selectedLabel.textColor = self.textColor;
+	self.selectedLabel.textAlignment = self.textAlignment;
+	self.selectedLabel.center = point;
+	[self.selectedLabel autosize];
+	[self.labels addObject:self.selectedLabel];
+	[self addSubview:self.selectedLabel];
+	return self.selectedLabel;
 }
 
 #pragma mark - Gestures
@@ -229,19 +178,22 @@
     
     switch (recognizer.state) {
         case UIGestureRecognizerStateBegan: {
-            self.referenceCenter = self.textLabel.center;
+			CGPoint touch = [recognizer locationOfTouch:0 inView:self];
+			[self selectLabelAtPosition:touch];
+			
+            self.referenceCenter = self.selectedLabel.center;
             break;
         }
             
         case UIGestureRecognizerStateChanged: {
             CGPoint panTranslation = [(UIPanGestureRecognizer *)recognizer translationInView:self];
-            self.textLabel.center = CGPointMake(self.referenceCenter.x + panTranslation.x,
+            self.selectedLabel.center = CGPointMake(self.referenceCenter.x + panTranslation.x,
                                                 self.referenceCenter.y + panTranslation.y);;
             break;
         }
             
         case UIGestureRecognizerStateEnded: {
-            self.referenceCenter = self.textLabel.center;
+            self.referenceCenter = self.selectedLabel.center;
             break;
         }
             
@@ -255,40 +207,29 @@
     switch (recognizer.state) {
         case UIGestureRecognizerStateBegan: {
             if ([recognizer isKindOfClass:[UIRotationGestureRecognizer class]]) {
-                self.currentRotateTransform = self.referenceRotateTransform;
                 self.activeRotationRecognizer = (UIRotationGestureRecognizer *)recognizer;
             } else {
                 self.activePinchRecognizer = (UIPinchGestureRecognizer *)recognizer;
             }
             break;
         }
-            
         case UIGestureRecognizerStateChanged: {
-            
-            CGAffineTransform currentTransform = self.referenceRotateTransform;
-            
-            if ([recognizer isKindOfClass:[UIRotationGestureRecognizer class]]) {
-                self.currentRotateTransform = [self.class applyRecognizer:recognizer toTransform:self.referenceRotateTransform];
-            }
-            
+            CGAffineTransform currentTransform = self.selectedLabel.initialRotationTransform;
+			// Apply the rotation
+			currentTransform = [self.class applyRecognizer:self.activeRotationRecognizer toTransform:currentTransform];
+			// Apply the scale
             currentTransform = [self.class applyRecognizer:self.activePinchRecognizer toTransform:currentTransform];
-            currentTransform = [self.class applyRecognizer:self.activeRotationRecognizer toTransform:currentTransform];
             
-            self.textLabel.transform = currentTransform;
-            
+            self.selectedLabel.transform = currentTransform;
             break;
         }
-            
         case UIGestureRecognizerStateEnded: {
             if ([recognizer isKindOfClass:[UIRotationGestureRecognizer class]]) {
-                
-                self.referenceRotateTransform = [self.class applyRecognizer:recognizer toTransform:self.referenceRotateTransform];
-                self.currentRotateTransform = self.referenceRotateTransform;
+                self.selectedLabel.initialRotationTransform = [self.class applyRecognizer:recognizer toTransform:self.selectedLabel.initialRotationTransform];
                 self.activeRotationRecognizer = nil;
-                
+				
             } else if ([recognizer isKindOfClass:[UIPinchGestureRecognizer class]]) {
-                
-                self.scale *= [(UIPinchGestureRecognizer *)recognizer scale];
+				self.selectedLabel.scale *= self.activePinchRecognizer.scale;
                 self.activePinchRecognizer = nil;
             }
             
