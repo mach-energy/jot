@@ -266,7 +266,11 @@
 - (void)clearText
 {
     self.textString = @"";
-    [self.textView clearText];
+    [self.textView clearAll];
+}
+
+- (void)deleteSelectedLabel {
+	[self.textView deleteSelectedLabel];
 }
 
 #pragma mark - Output UIImage

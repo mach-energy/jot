@@ -51,11 +51,11 @@
 
 #pragma mark - Undo
 
-- (void)clearText
+- (void)clearAll
 {
-	self.selectedLabel.scale = 1.f;
-    self.selectedLabel.transform = CGAffineTransformIdentity;
-    self.selectedLabel.text = @"";
+	while (_selectedLabel) {
+		[self deleteSelectedLabel];
+	}
 }
 
 #pragma mark - Properties
@@ -65,9 +65,7 @@
 	if (_selectedLabel) {
 		if (textString.length == 0) {
 			// delete it.
-			[_labels removeObject:_selectedLabel];
-			[_selectedLabel removeFromSuperview];
-			self.selectedLabel = [_labels lastObject];
+			[self deleteSelectedLabel];
 		}
 		else {
 			CGPoint center = self.selectedLabel.center;
@@ -180,6 +178,12 @@
 	[self.labels addObject:self.selectedLabel];
 	[self addSubview:self.selectedLabel];
 	return self.selectedLabel;
+}
+
+- (void)deleteSelectedLabel {
+	[_labels removeObject:_selectedLabel];
+	[_selectedLabel removeFromSuperview];
+	self.selectedLabel = [_labels lastObject];
 }
 
 #pragma mark - Gestures

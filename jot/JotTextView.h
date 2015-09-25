@@ -86,18 +86,44 @@
 @property (nonatomic, assign) BOOL fitOriginalFontSizeToViewWidth;
 
 /**
- *  Clears text from the drawing, giving a blank slate.
+ *  Clears all the texts from the drawing, giving a blank slate.
  *
  *  @note Call clearText or clearAll in JotViewController
  *  to trigger this method.
  */
-- (void)clearText;
+- (void)clearAll;
 
+/**
+ *  Returns the label at the given position
+ *
+ *  @param point the position, in the JotTextView coordinates
+ *
+ *  @return return the label, or nil if no label found
+ */
 - (JotLabel*)labelAtPosition:(CGPoint)point;
 
+/**
+ *  Calls labelAtPosition: and select the label if found
+ *
+ *  @param point the position, in the JotTextView coordinates
+ *
+ *  @return return the selected label, or nil
+ */
 - (JotLabel*)selectLabelAtPosition:(CGPoint)point;
 
+/**
+ *  Adds a new label at the given position
+ *
+ *  @param point the position, in the JotTextView coordinates
+ *
+ *  @return the newly added label
+ */
 - (JotLabel*)addLabelAtPosition:(CGPoint)point;
+
+/**
+ *  Deletes the currently selected label
+ */
+- (void)deleteSelectedLabel;
 
 /**
  *  Overlays the text on the given background image.
