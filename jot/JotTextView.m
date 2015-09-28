@@ -37,7 +37,7 @@
         _scale = 1.f;
         _font = [UIFont systemFontOfSize:fontSize];
         _textAlignment = NSTextAlignmentCenter;
-        _textColor = [UIColor whiteColor];
+        _textColor = [UIColor blackColor];
 		
 		_labels = [NSMutableArray new];
 		
@@ -133,15 +133,17 @@
 - (void)setSelectedLabel:(JotLabel *)selectedLabel {
 	if (_selectedLabel != selectedLabel) {
 		_selectedLabel.selected = NO;
-		selectedLabel.selected = YES;
-		self.referenceCenter = selectedLabel.center;
-		_selectedLabel = selectedLabel;
-
-		// place the selected label at last array position
-		if (_selectedLabel != [_labels lastObject]) {
-			[_labels removeObject:_selectedLabel];
-			[_labels addObject:_selectedLabel];
+		if (selectedLabel) {
+			selectedLabel.selected = YES;
+			self.referenceCenter = selectedLabel.center;
+			
+			// place the selected label at last array position
+			if (selectedLabel != [_labels lastObject]) {
+				[_labels removeObject:selectedLabel];
+				[_labels addObject:selectedLabel];
+			}
 		}
+		_selectedLabel = selectedLabel;
 	}
 }
 
@@ -162,6 +164,12 @@
 		self.selectedLabel = label;
 	}
 	return label;
+}
+
+- (void)deselectLabel {
+	if (_selectedLabel) {
+		self.selectedLabel = nil;
+	}
 }
 
 - (JotLabel*)addLabelAtPosition:(CGPoint)point {

@@ -123,6 +123,10 @@
             && [self.delegate respondsToSelector:@selector(jotViewController:isEditingText:)]) {
             [self.delegate jotViewController:self isEditingText:YES];
         }
+		
+		if (state == JotViewStateDefault || state == JotViewStateDrawing) {
+			[self.textView deselectLabel];
+		}
         
         self.drawingContainer.multipleTouchEnabled =
         self.tapRecognizer.enabled =

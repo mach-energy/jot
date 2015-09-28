@@ -112,6 +112,11 @@
 - (JotLabel*)selectLabelAtPosition:(CGPoint)point;
 
 /**
+ *  Deselects the label
+ */
+- (void)deselectLabel;
+
+/**
  *  Adds a new label at the given position
  *
  *  @param point the position, in the JotTextView coordinates
