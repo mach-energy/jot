@@ -59,9 +59,5 @@
  */
 - (CGPoint)CGPointValue;
 
-/**
- *  Draw the point on current context
- */
-- (void)jotDraw;
 
 @end

@@ -19,6 +19,8 @@
  */
 @property (nonatomic, weak) id <JotDrawingContainerDelegate> delegate;
 
+@property (nonatomic, assign) NSUInteger discreteGridSize;
+
 @end
 
 @protocol JotDrawingContainerDelegate <NSObject>
@@ -46,5 +48,14 @@
  *  system where the touch ended.
  */
 - (void)jotDrawingContainerTouchEndedAtPoint:(CGPoint)touchPoint;
+
+@optional
+
+/**
+ *  ask the delegate if we should discretise or not.
+ *
+ *  @return YES if we should discretise.
+ */
+- (BOOL)jotDrawingContainerShouldDiscretise;
 
 @end

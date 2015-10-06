@@ -19,10 +19,15 @@ typedef NS_ENUM(NSUInteger, JotViewState){
      */
     JotViewStateDefault,
     /**
-     *  The drawing state, where drawing with touch
-     *  gestures will create colored lines in the view.
+     *  The free drawing state, where drawing with touch
+     *  gestures will create colored free hand draw in the view.
      */
     JotViewStateDrawing,
+	/**
+	 *  The draw lines state, where drawing lines with touch
+	 *  gestures will create colored lines in the view.
+	 */
+	JotViewStateDrawLines,
     /**
      *  The text state, where pinch, pan, and rotate
      *  gestures will manipulate the displayed text, and
@@ -120,6 +125,21 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  *  NO if the stroke width should vary depending on drawing speed.
  */
 @property (nonatomic, assign) BOOL drawingConstantStrokeWidth;
+
+/**
+ *  Yes if the line should dashed, No otherwise
+ */
+@property (nonatomic, assign) BOOL drawingLineDashed;
+
+/**
+ *  Yes to constraint lines to be right angle only
+ */
+@property (nonatomic, assign) BOOL drawingLineRightAngle;
+
+/**
+ *  The size of the grid magnet for the lines
+ */
+@property (nonatomic, assign) NSUInteger drawingLineDiscreteGridSize;
 
 /**
  *  The view insets of the text displayed in the JotTextEditView. By default,

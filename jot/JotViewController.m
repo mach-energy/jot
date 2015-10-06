@@ -40,6 +40,7 @@
         _textView = [JotTextView new];
         _drawingContainer = [JotDrawingContainer new];
         self.drawingContainer.delegate = self;
+		self.drawingContainer.discreteGridSize = 0; // no grid
         
         _font = self.textView.font;
         _fontSize = self.textView.fontSize;
@@ -124,7 +125,7 @@
             [self.delegate jotViewController:self isEditingText:YES];
         }
 		
-		if (state == JotViewStateDefault || state == JotViewStateDrawing) {
+		if (state != JotViewStateText && state != JotViewStateEditingText) {
 			[self.textView deselectLabel];
 		}
         
@@ -242,6 +243,24 @@
         _drawingConstantStrokeWidth = drawingConstantStrokeWidth;
         self.drawView.constantStrokeWidth = drawingConstantStrokeWidth;
     }
+}
+
+- (void)setDrawingLineDashed:(BOOL)drawingLineDashed
+{
+	_drawingLineDashed = drawingLineDashed;
+	self.drawView.dashedLine = drawingLineDashed;
+}
+
+- (void)setDrawingLineRightAngle:(BOOL)drawingLineRightAngle
+{
+	_drawingLineRightAngle = drawingLineRightAngle;
+	self.drawView.rightAngleLinesOnly = drawingLineRightAngle;
+}
+
+- (void)setDrawingLineDiscreteGridSize:(NSUInteger)drawingLineDiscreteGridSize
+{
+	_drawingLineDiscreteGridSize = drawingLineDiscreteGridSize;
+	self.drawingContainer.discreteGridSize = drawingLineDiscreteGridSize;
 }
 
 #pragma mark - Undo
@@ -368,11 +387,18 @@
 
 #pragma mark - JotDrawingContainer Delegate
 
+- (BOOL)jotDrawingContainerShouldDiscretise {
+	return self.state == JotViewStateDrawLines;
+}
+
 - (void)jotDrawingContainerTouchBeganAtPoint:(CGPoint)touchPoint
 {
     if (self.state == JotViewStateDrawing) {
         [self.drawView drawTouchBeganAtPoint:touchPoint];
     }
+	else if (self.state == JotViewStateDrawLines) {
+		[self.drawView drawLineBeganAtPoint:touchPoint];
+	}
 }
 
 - (void)jotDrawingContainerTouchMovedToPoint:(CGPoint)touchPoint
@@ -380,6 +406,9 @@
     if (self.state == JotViewStateDrawing) {
         [self.drawView drawTouchMovedToPoint:touchPoint];
     }
+	else if (self.state == JotViewStateDrawLines) {
+		[self.drawView drawLineMovedToPoint:touchPoint];
+	}
 }
 
 - (void)jotDrawingContainerTouchEndedAtPoint:(CGPoint)touchPoint
@@ -387,6 +416,9 @@
     if (self.state == JotViewStateDrawing) {
         [self.drawView drawTouchEndedAtPoint:touchPoint];
     }
+	else if (self.state == JotViewStateDrawLines) {
+		[self.drawView drawLineEndedAtPoint:touchPoint];
+	}
 }
 
 #pragma mark - UIGestureRecognizer Delegate

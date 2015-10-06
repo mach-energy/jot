@@ -43,6 +43,16 @@
 @property (nonatomic, strong) UIColor *strokeColor;
 
 /**
+ *  Yes if the line should dashed, No otherwise
+ */
+@property (nonatomic, assign) BOOL dashedLine;
+
+/**
+ *  Yes to constraint lines to be right angle only
+ */
+@property (nonatomic, assign) BOOL rightAngleLinesOnly;
+
+/**
  *  Clears all paths from the drawing, giving a blank slate.
  *
  *  @note Call clearDrawing or clearAll in JotViewController
@@ -103,6 +113,20 @@
  *  touchesEnded event.
  */
 - (void)drawTouchEndedAtPoint:(CGPoint)touchPoint;
+
+
+/**
+ *  The three methods that handle draw evens for lines
+ *
+ *  @param touchPoint The point in this view's coordinate
+ *  system where the touch began/moved/ended.
+ *
+ *  @note This method is triggered by JotDrawController's
+ *  touch events.
+ */
+- (void)drawLineBeganAtPoint:(CGPoint)touchPoint;
+- (void)drawLineMovedToPoint:(CGPoint)touchPoint;
+- (void)drawLineEndedAtPoint:(CGPoint)touchPoint;
 
 /**
  *  Overlays the drawing on the given background image, rendering

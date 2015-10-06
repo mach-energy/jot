@@ -9,6 +9,7 @@
 #import "JotDrawView.h"
 #import "JotTouchPoint.h"
 #import "JotTouchBezier.h"
+#import "JotTouchLine.h"
 #import "UIImage+Jot.h"
 
 CGFloat const kJotVelocityFilterWeight = 0.9f;
@@ -96,6 +97,21 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 	}
 }
 
+- (void)undoAddState {
+	[self.undoArray addObject:@(self.pathsArray.count)];
+	self.undoIndex = self.undoArray.count-1;
+}
+
+- (void)clearRedo {
+	// if undo happened, remove everything after undo state
+	if (self.undoIndex < self.undoArray.count-1) {
+		NSUInteger pathArrayFinalCount = [self.undoArray[self.undoIndex] integerValue];
+		[self.pathsArray removeObjectsInRange:NSMakeRange(pathArrayFinalCount, self.pathsArray.count - pathArrayFinalCount)];
+		NSUInteger undoFinalCount = self.undoIndex+1;
+		[self.undoArray removeObjectsInRange:NSMakeRange(undoFinalCount, self.undoArray.count - undoFinalCount)];
+	}
+}
+
 - (void)logUndoStatus {
 	NSLog(@"Path array count: %d", (int)self.pathsArray.count);
 	NSLog(@"Undo array [%@] - cursor: %d", [self.undoArray componentsJoinedByString:@" - "], (int)self.undoIndex);
@@ -112,17 +128,12 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
     }
 }
 
-#pragma mark - Draw Touches
+#pragma mark - Free hand draw Touches
 
 - (void)drawTouchBeganAtPoint:(CGPoint)point
 {
-	// if undo happened, remove everything after undo state
-	if (self.undoIndex < self.undoArray.count-1) {
-		NSUInteger pathArrayFinalCount = [self.undoArray[self.undoIndex] integerValue];
-		[self.pathsArray removeObjectsInRange:NSMakeRange(pathArrayFinalCount, self.pathsArray.count - pathArrayFinalCount)];
-		NSUInteger undoFinalCount = self.undoIndex+1;
-		[self.undoArray removeObjectsInRange:NSMakeRange(undoFinalCount, self.undoArray.count - undoFinalCount)];
-	}
+	// Clear further redo if any
+	[self clearRedo];
 	
     self.lastVelocity = self.initialVelocity;
     self.lastWidth = self.strokeWidth;
@@ -135,9 +146,9 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 	touchPoint.strokeColor = self.strokeColor;
 	[self.pathsArray addObject:touchPoint];
 	
-	[self.undoArray addObject:@(self.pathsArray.count)];
-	self.undoIndex = self.undoArray.count-1;
-	
+	// Adds an undo state
+	[self undoAddState];
+	// And refresh drawing
 	[self setNeedsDisplayInRect:touchPoint.rect];
 }
 
@@ -192,6 +203,37 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 {
     self.lastVelocity = self.initialVelocity;
     self.lastWidth = self.strokeWidth;
+}
+
+#pragma mark - Line draw Touches
+
+- (void)drawLineBeganAtPoint:(CGPoint)point {
+	// Clear further redo if any
+	[self clearRedo];
+	
+	JotTouchLine *touchLine = [JotTouchLine withStartPoint:point];
+	touchLine.strokeWidth = self.strokeWidth;
+	touchLine.strokeColor = self.strokeColor;
+	touchLine.dashed	  = self.dashedLine;
+	[self.pathsArray addObject:touchLine];
+	
+	// Adds an undo state
+	[self undoAddState];
+	// And refresh drawing
+	[self setNeedsDisplayInRect:touchLine.rect];
+}
+
+- (void)drawLineMovedToPoint:(CGPoint)point {
+	JotTouchObject *touchLine = [self.pathsArray lastObject];
+	if (touchLine && [touchLine isKindOfClass:JotTouchLine.class]) {
+		CGRect oldRect = touchLine.rect;
+		((JotTouchLine *)touchLine).pointB = point;
+		[self setNeedsDisplayInRect:CGRectUnion(oldRect, touchLine.rect)];
+	}
+}
+
+- (void)drawLineEndedAtPoint:(CGPoint)point {
+	[self drawLineMovedToPoint:point];
 }
 
 #pragma mark - Drawing
