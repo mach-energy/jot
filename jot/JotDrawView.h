@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+extern NSString const* kObjects;
+extern NSString const* kUndoArray;
+
 /**
  *  Private class to handle touch drawing. Change the properties
  *  in a JotViewController instance to configure this private class.
@@ -163,17 +166,17 @@
 #pragma mark - Serialization
 
 /**
- *  Convert the draw view into an array
+ *  Convert the draw view into a dictionary
  *
- *  @return the object, as a NSArray
+ *  @return the object, as a NSDictionary
  */
-- (NSArray*)serialize;
+- (NSDictionary*)serialize;
 
 /**
- *  Unserialize the draw view from an array
+ *  Unserialize the draw view from a dictionary
  *
- *  @param the NSArray representing the object
+ *  @param the NSDictionary representing the object
  */
-- (void)unserialize:(NSArray*)dictionary;
+- (void)unserialize:(NSDictionary*)dictionary;
 
 @end

@@ -16,6 +16,9 @@ CGFloat const kJotVelocityFilterWeight = 0.9f;
 CGFloat const kJotInitialVelocity = 220.f;
 CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 
+NSString const* kObjects = @"Objects";
+NSString const* kUndoArray = @"UndoArray";
+
 @interface JotDrawView ()
 
 @property (nonatomic, strong) UIImage *cachedImage;
@@ -314,7 +317,7 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 
 #pragma mark - Serialization
 
-- (NSArray*)serialize {
+- (NSDictionary*)serialize {
 	NSMutableArray *objects = [NSMutableArray new];
 	// only save the not undoed objects
 	NSUInteger pathArrayUndoedCount = [self.undoArray[self.undoIndex] integerValue];
@@ -322,11 +325,24 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 		JotTouchObject *touchObject = self.pathsArray[i];
 		[objects addObject:[touchObject serialize]];
 	}
+	return @{kObjects: objects,
+			 kUndoArray: [self.undoArray subarrayWithRange:NSMakeRange(0, self.undoIndex+1)]};
 }
 
-- (void)unserialize:(NSArray*)dictionary {
-	for (NSDictionary *objectDic in dictionary) {
-		[self.pathArray addObject:]
+- (void)unserialize:(NSDictionary*)dictionary {
+	if (dictionary[kObjects]) {
+		NSArray *objects = dictionary[kObjects];
+		for (NSDictionary *objectDic in objects) {
+			JotTouchObject *touchObject = [JotTouchObject fromSerialized:objectDic];
+			[self.pathsArray addObject:touchObject];
+		}
+		if (dictionary[kUndoArray]) {
+			self.undoArray = [dictionary[kUndoArray] mutableCopy];
+			self.undoIndex = self.undoArray.count -1;
+		}
+		else {
+			[self undoAddState];
+		}
 	}
 }
 

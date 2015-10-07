@@ -8,6 +8,15 @@
 
 #import "JotLabel.h"
 
+NSString *const kText = @"Text";
+NSString *const kFontName = @"FontName";
+NSString *const kFontSize = @"FontSize";
+NSString *const kTextColor = @"Color";
+NSString *const kAlignment = @"Alignment";
+NSString *const kCenter = @"Center";
+NSString *const kRotation = @"kRotation";
+NSString *const kFitWidth = @"FitWidth";
+
 @interface JotLabel ()
 
 @property (nonatomic, strong) CAShapeLayer *borderLayer;
@@ -116,5 +125,59 @@
 	temporarySizingLabel.center = self.center;
 	self.unscaledFrame = temporarySizingLabel.frame;
 }
+
+
+#pragma mark - Serialization
+
++ (instancetype)fromSerialized:(NSDictionary*)dictionary {
+	JotLabel *label = [JotLabel new];
+	[label unserialize:dictionary];
+	return label;
+}
+
+- (NSMutableDictionary*)serialize {
+	NSMutableDictionary *dic = [NSMutableDictionary new];
+	dic[kText] = self.text;
+	dic[kFontName] = self.font.fontName;
+	dic[kFontSize] = @(self.unscaledFontSize);
+	dic[kTextColor] = self.textColor;
+	dic[kAlignment] = @(self.textAlignment);
+	dic[kCenter] = [NSValue valueWithCGPoint:self.center];
+	dic[kRotation] = @(atan2f(self.transform.b, self.transform.a));
+	dic[kFitWidth] = @(self.fitOriginalFontSizeToViewWidth);
+	return dic;
+}
+
+- (void)unserialize:(NSDictionary*)dictionary {
+	if (dictionary[kText]) {
+		self.text = dictionary[kText];
+	}
+	else return;
+	
+	if (dictionary[kFontName] && dictionary[kFontSize]) {
+		self.font = [UIFont fontWithName:dictionary[kFontName]
+									size:[dictionary[kFontSize] floatValue]];
+		self.unscaledFontSize = [dictionary[kFontSize] floatValue];
+	}
+	if (dictionary[kTextColor]) {
+		self.textColor = dictionary[kTextColor];
+	}
+	if (dictionary[kAlignment]) {
+		self.textAlignment = [dictionary[kAlignment] integerValue];
+	}
+	if (dictionary[kCenter]) {
+		self.center = [dictionary[kCenter] CGPointValue];
+	}
+	if (dictionary[kRotation]) {
+		self.transform = CGAffineTransformMakeRotation([dictionary[kRotation] floatValue]);
+	}
+	if ([dictionary[kFitWidth] boolValue]) {
+		self.fitOriginalFontSizeToViewWidth = YES;
+		self.numberOfLines = 0;
+	}
+	
+	[self refreshFont];
+}
+
 
 @end

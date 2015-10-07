@@ -90,6 +90,7 @@
 	_font = font;
     if (_selectedLabel) {
 		self.selectedLabel.font = font;
+		self.selectedLabel.unscaledFontSize = font.pointSize;
 		[self.selectedLabel refreshFont];
     }
 }
@@ -139,8 +140,12 @@
 			
 			// place the selected label at last array position
 			if (selectedLabel != [_labels lastObject]) {
-				[_labels removeObject:selectedLabel];
-				[_labels addObject:selectedLabel];
+				NSUInteger index = [_labels indexOfObject:selectedLabel];
+				if (index != NSNotFound) {
+					[_labels removeObjectAtIndex:index];
+					[_labels addObject:selectedLabel];
+					[self bringSubviewToFront:selectedLabel];
+				}
 			}
 		}
 		_selectedLabel = selectedLabel;
@@ -150,7 +155,8 @@
 #pragma mark - Methods
 
 - (JotLabel*)labelAtPosition:(CGPoint)point {
-	for (JotLabel *label in _labels) {
+	for (int i=(int)_labels.count-1; i>=0; i--) {
+		JotLabel *label = self.labels[i];
 		if ([label.layer containsPoint:[label convertPoint:point fromView:self]]) {
 			return label;
 		}
@@ -321,6 +327,25 @@
     return [UIImage imageWithCGImage:drawnImage.CGImage
                                scale:1.f
                          orientation:drawnImage.imageOrientation];
+}
+
+#pragma mark - Serialization
+
+- (NSArray*)serialize {
+	NSMutableArray *labels = [NSMutableArray new];
+
+	for (JotLabel *label in self.labels) {
+		[labels addObject:[label serialize]];
+	}
+	return labels;
+}
+
+- (void)unserialize:(NSArray*)array {
+	for (NSDictionary *labelDic in array) {
+		JotLabel *label = [JotLabel fromSerialized:labelDic];
+		[self.labels addObject:label];
+		[self addSubview:label];
+	}
 }
 
 @end

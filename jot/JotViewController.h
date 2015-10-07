@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+extern NSString const* kDrawView;
+extern NSString const* kLabels;
+extern NSString const* kDate;
+
 /**
  *  The possible states of the JotViewController
  */
@@ -249,6 +253,22 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  *  @return An image of the rendered drawing and text on a colored background.
  */
 - (UIImage *)renderImageWithScale:(CGFloat)scale onColor:(UIColor *)color;
+
+#pragma mark - Serialization
+
+/**
+ *  Convert the draw and text views to a dictionary
+ *
+ *  @return the views, as a NSDictionary
+ */
+- (NSDictionary*)serialize;
+
+/**
+ *  Unserialize the views from a dictionary
+ *
+ *  @param the NSDictionary representing the object
+ */
+- (void)unserialize:(NSDictionary*)dictionary;
 
 @end
 

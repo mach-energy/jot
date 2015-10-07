@@ -174,4 +174,20 @@
  */
 - (void)handlePinchOrRotateGesture:(UIGestureRecognizer *)recognizer;
 
+#pragma mark - Serialization
+
+/**
+ *  Convert the draw view into an array
+ *
+ *  @return the object, as a NSArray
+ */
+- (NSArray*)serialize;
+
+/**
+ *  Unserialize the draw view from an array
+ *
+ *  @param the NSArray representing the object
+ */
+- (void)unserialize:(NSArray*)array;
+
 @end

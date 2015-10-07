@@ -45,6 +45,15 @@ extern NSString *const kIsDashed;
 #pragma mark - Serialization
 
 /**
+ *  Creates a new JotTouchObject from a serialized dictionary
+ *
+ *  @param dictionary the serialization
+ *
+ *  @return the new JotTouchObject.
+ */
++ (instancetype)fromSerialized:(NSDictionary*)dictionary;
+
+/**
  *  Convert the object to a dictionary
  *
  *  @return the object, as a NSDictionary

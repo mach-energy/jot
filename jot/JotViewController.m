@@ -15,6 +15,10 @@
 #import "UIImage+Jot.h"
 #import "JotDrawingContainer.h"
 
+NSString const* kDrawView = @"DrawView";
+NSString const* kLabels = @"Labels";
+NSString const* kDate = @"Date";
+
 @interface JotViewController () <UIGestureRecognizerDelegate, JotTextEditViewDelegate, JotDrawingContainerDelegate>
 
 @property (nonatomic, strong) UITapGestureRecognizer *tapRecognizer;
@@ -150,75 +154,59 @@
 
 - (void)setFont:(UIFont *)font
 {
-    if (_font != font) {
-        _font = font;
-        self.textView.font =
-        self.textEditView.font = font;
-    }
+	_font = font;
+	self.textView.font =
+	self.textEditView.font = font;
 }
 
 - (void)setFontSize:(CGFloat)fontSize
 {
-    if (_fontSize != fontSize) {
-        _fontSize = fontSize;
-        self.textView.fontSize =
-        self.textEditView.fontSize = fontSize;
-    }
+	_fontSize = fontSize;
+	self.textView.fontSize =
+	self.textEditView.fontSize = fontSize;
 }
 
 - (void)setTextAlignment:(NSTextAlignment)textAlignment
 {
-    if (_textAlignment != textAlignment) {
-        _textAlignment = textAlignment;
-        self.textView.textAlignment =
-        self.textEditView.textAlignment = textAlignment;
-    }
+	_textAlignment = textAlignment;
+	self.textView.textAlignment =
+	self.textEditView.textAlignment = textAlignment;
 }
 
 - (void)setTextColor:(UIColor *)textColor
 {
-    if (_textColor != textColor) {
-        _textColor = textColor;
-        self.textView.textColor =
-        self.textEditView.textColor = textColor;
-    }
+	_textColor = textColor;
+	self.textView.textColor =
+	self.textEditView.textColor = textColor;
 }
 
 - (void)setInitialTextInsets:(UIEdgeInsets)initialTextInsets
 {
-    if (!UIEdgeInsetsEqualToEdgeInsets(_initialTextInsets, initialTextInsets)) {
-        _initialTextInsets = initialTextInsets;
-        self.textView.initialTextInsets = initialTextInsets;
-    }
+	_initialTextInsets = initialTextInsets;
+	self.textView.initialTextInsets = initialTextInsets;
 }
 
 - (void)setTextEditingInsets:(UIEdgeInsets)textEditingInsets
 {
-    if (!UIEdgeInsetsEqualToEdgeInsets(_textEditingInsets, textEditingInsets)) {
-        _textEditingInsets = textEditingInsets;
-        self.textEditView.textEditingInsets = textEditingInsets;
-    }
+	_textEditingInsets = textEditingInsets;
+	self.textEditView.textEditingInsets = textEditingInsets;
 }
 
 - (void)setFitOriginalFontSizeToViewWidth:(BOOL)fitOriginalFontSizeToViewWidth
 {
-    if (_fitOriginalFontSizeToViewWidth != fitOriginalFontSizeToViewWidth) {
-        _fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
-        self.textView.fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
-        if (fitOriginalFontSizeToViewWidth) {
-            self.textEditView.textAlignment = self.textAlignment;
-        } else {
-            self.textEditView.textAlignment = NSTextAlignmentLeft;
-        }
-    }
+	_fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
+	self.textView.fitOriginalFontSizeToViewWidth = fitOriginalFontSizeToViewWidth;
+	if (fitOriginalFontSizeToViewWidth) {
+		self.textEditView.textAlignment = self.textAlignment;
+	} else {
+		self.textEditView.textAlignment = NSTextAlignmentLeft;
+	}
 }
 
 - (void)setClipBoundsToEditingInsets:(BOOL)clipBoundsToEditingInsets
 {
-    if (_clipBoundsToEditingInsets != clipBoundsToEditingInsets) {
-        _clipBoundsToEditingInsets = clipBoundsToEditingInsets;
-        self.textEditView.clipBoundsToEditingInsets = clipBoundsToEditingInsets;
-    }
+	_clipBoundsToEditingInsets = clipBoundsToEditingInsets;
+	self.textEditView.clipBoundsToEditingInsets = clipBoundsToEditingInsets;
 }
 
 - (void)setDrawingColor:(UIColor *)drawingColor
@@ -465,6 +453,25 @@
 			self.drawView.alpha = 1;
 		}];
 	}];
+}
+
+#pragma mark - Serialization
+
+- (NSDictionary*)serialize {
+	NSDictionary *drawView = [self.drawView serialize];
+	NSArray *labels = [self.textView serialize];
+	return @{kDrawView: drawView,
+			 kLabels: labels,
+			 kDate: [NSDate date]};
+}
+
+- (void)unserialize:(NSDictionary*)dictionary {
+	if (dictionary[kDrawView]) {
+		[self.drawView unserialize:dictionary[kDrawView]];
+	}
+	if (dictionary[kLabels]) {
+		[self.textView unserialize:dictionary[kLabels]];
+	}
 }
 
 

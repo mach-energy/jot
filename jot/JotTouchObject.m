@@ -33,11 +33,11 @@ NSString *const kIsDashed = @"IsDashed";
 
 #pragma mark - Serialization
 
-- (instancetype)fromSerialized:(NSDictionary*)dictionary {
++ (instancetype)fromSerialized:(NSDictionary*)dictionary {
 	NSString *className = dictionary[kType];
 	JotTouchObject *object = nil;
 	if (className) {
-		JotTouchObject *object = [NSClassFromString(className) new];
+		object = [NSClassFromString(className) new];
 		[object unserialize:dictionary];
 	}
 	return object;
