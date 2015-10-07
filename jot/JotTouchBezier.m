@@ -21,13 +21,11 @@ NSUInteger const kJotDrawStepsPerBezier = 30;
 {
 	self = [super init];
 	if (self) {
-		_path = CGPathCreateMutable();
-		CGPathMoveToPoint(_path, NULL, startPoint.x, startPoint.y);
-		CGPathAddCurveToPoint(_path, NULL, controlPoint1.x, controlPoint1.y, controlPoint2.x, controlPoint2.y, endPoint.x, endPoint.y);
 		self.startPoint = startPoint;
 		self.endPoint = endPoint;
 		self.controlPoint1 = controlPoint1;
 		self.controlPoint2 = controlPoint2;
+		[self generatePath];
 	}
 	return self;
 }
@@ -44,6 +42,13 @@ NSUInteger const kJotDrawStepsPerBezier = 30;
     } else {
 		[self drawStrategy2];
     }
+}
+
+- (void)generatePath {
+	if (_path) CGPathRelease(_path);
+	_path = CGPathCreateMutable();
+	CGPathMoveToPoint(_path, NULL, self.startPoint.x, self.startPoint.y);
+	CGPathAddCurveToPoint(_path, NULL, self.controlPoint1.x, self.controlPoint1.y, self.controlPoint2.x, self.controlPoint2.y, self.endPoint.x, self.endPoint.y);
 }
 
 - (void)drawStrategy1 {
@@ -103,6 +108,45 @@ NSUInteger const kJotDrawStepsPerBezier = 30;
 	CGRect boundingBox = CGPathGetBoundingBox(_path);
 	CGFloat largestWidth = -MAX(self.startWidth, self.endWidth)/2;
 	return CGRectInset(boundingBox, largestWidth, largestWidth);
+}
+
+#pragma mark - Serialization
+
+- (NSMutableDictionary*)serialize {
+	NSMutableDictionary *dic = [super serialize];
+	dic[kPointA] = [NSValue valueWithCGPoint:self.startPoint];
+	dic[kPointB] = [NSValue valueWithCGPoint:self.endPoint];
+	dic[kPointAControl] = [NSValue valueWithCGPoint:self.controlPoint1];
+	dic[kPointBControl] = [NSValue valueWithCGPoint:self.controlPoint2];
+	dic[kStrokeStartWidth]	= @(self.startWidth);
+	dic[kStrokeEndWidth]	= self.constantWidth?@(self.startWidth):@(self.endWidth);
+	
+	return dic;
+}
+
+- (void)unserialize:(NSDictionary*)dictionary {
+	[super unserialize:dictionary];
+	if (dictionary[kPointA]) {
+		self.startPoint = [dictionary[kPointA] CGPointValue];
+	}
+	if (dictionary[kPointB]) {
+		self.endPoint = [dictionary[kPointB] CGPointValue];
+	}
+	if (dictionary[kPointAControl]) {
+		self.controlPoint1 = [dictionary[kPointAControl] CGPointValue];
+	}
+	if (dictionary[kPointBControl]) {
+		self.controlPoint2 = [dictionary[kPointBControl] CGPointValue];
+	}
+	[self generatePath];
+	
+	if (dictionary[kStrokeStartWidth]) {
+		self.startWidth = [dictionary[kStrokeStartWidth] floatValue];
+	}
+	if (dictionary[kStrokeEndWidth]) {
+		self.endWidth = [dictionary[kStrokeEndWidth] floatValue];
+	}
+	self.constantWidth = (self.startWidth == self.endWidth);
 }
 
 @end

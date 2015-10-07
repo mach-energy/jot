@@ -47,4 +47,31 @@
 	return CGRectInset(zeroWidthRect, enlarge, enlarge);
 }
 
+#pragma mark - Serialization
+
+- (NSMutableDictionary*)serialize {
+	NSMutableDictionary *dic = [super serialize];
+	dic[kPointA] = [NSValue valueWithCGPoint:self.pointA];
+	dic[kPointB] = [NSValue valueWithCGPoint:self.pointB];
+	dic[kStrokeWidth] = @(self.strokeWidth);
+	dic[kIsDashed] = @(self.dashed);
+	return dic;
+}
+
+- (void)unserialize:(NSDictionary*)dictionary {
+	[super unserialize:dictionary];
+	if (dictionary[kPointA]) {
+		self.pointA = [dictionary[kPointA] CGPointValue];
+	}
+	if (dictionary[kPointB]) {
+		self.pointB = [dictionary[kPointB] CGPointValue];
+	}
+	if (dictionary[kStrokeWidth]) {
+		self.strokeWidth = [dictionary[kStrokeWidth] floatValue];
+	}
+	if (dictionary[kIsDashed]) {
+		self.dashed = [dictionary[kIsDashed] boolValue];
+	}
+}
+
 @end

@@ -309,6 +309,25 @@ CGFloat const kJotRelativeMinStrokeWidth = 0.4f;
 	for (int i=0; i < pathArrayUndoedCount; i++) {
 		JotTouchObject *touchObject = self.pathsArray[i];
 		[touchObject jotDraw];
-	}}
+	}
+}
+
+#pragma mark - Serialization
+
+- (NSArray*)serialize {
+	NSMutableArray *objects = [NSMutableArray new];
+	// only save the not undoed objects
+	NSUInteger pathArrayUndoedCount = [self.undoArray[self.undoIndex] integerValue];
+	for (int i=0; i < pathArrayUndoedCount; i++) {
+		JotTouchObject *touchObject = self.pathsArray[i];
+		[objects addObject:[touchObject serialize]];
+	}
+}
+
+- (void)unserialize:(NSArray*)dictionary {
+	for (NSDictionary *objectDic in dictionary) {
+		[self.pathArray addObject:]
+	}
+}
 
 @end

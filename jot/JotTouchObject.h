@@ -9,6 +9,18 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+extern NSString *const kType;
+extern NSString *const kColor;
+extern NSString *const kPoint;
+extern NSString *const kPointA;
+extern NSString *const kPointB;
+extern NSString *const kPointAControl;
+extern NSString *const kPointBControl;
+extern NSString *const kStrokeWidth;
+extern NSString *const kStrokeStartWidth;
+extern NSString *const kStrokeEndWidth;
+extern NSString *const kIsDashed;
+
 @interface JotTouchObject : NSObject
 
 /**
@@ -29,5 +41,21 @@
  *  @note this method should be overriden in subclasses
  */
 - (void)jotDraw;
+
+#pragma mark - Serialization
+
+/**
+ *  Convert the object to a dictionary
+ *
+ *  @return the object, as a NSDictionary
+ */
+- (NSMutableDictionary*)serialize;
+
+/**
+ *  Unserialize the object from a dictionary
+ *
+ *  @param the NSDictionary representing the object
+ */
+- (void)unserialize:(NSDictionary*)dictionary;
 
 @end

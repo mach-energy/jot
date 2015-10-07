@@ -50,4 +50,24 @@
 	return CGRectInset(CGRectMake(self.point.x, self.point.y, 0.f, 0.f), -self.strokeWidth / 2.f, -self.strokeWidth / 2.f);
 }
 
+#pragma mark - Serialization
+
+- (NSMutableDictionary*)serialize {
+	NSMutableDictionary *dic = [super serialize];
+	dic[kPoint] = [NSValue valueWithCGPoint:self.point];
+	dic[kStrokeWidth] = @(self.strokeWidth);
+	return dic;
+}
+
+- (void)unserialize:(NSDictionary*)dictionary {
+	[super unserialize:dictionary];
+	NSValue *pointValue = dictionary[kPoint];
+	if (pointValue) {
+		self.point = [pointValue CGPointValue];
+	}
+	if (dictionary[kStrokeWidth]) {
+		self.strokeWidth = [dictionary[kStrokeWidth] floatValue];
+	}
+}
+
 @end
