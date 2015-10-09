@@ -15,6 +15,7 @@ extern NSString *const kTextColor;
 extern NSString *const kAlignment;
 extern NSString *const kCenter;
 extern NSString *const kRotation;
+extern NSString *const kScale;
 extern NSString *const kFitWidth;
 
 @interface JotLabel : UILabel

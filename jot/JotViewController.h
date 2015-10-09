@@ -284,4 +284,12 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  */
 - (void)jotViewController:(JotViewController *)jotViewController isEditingText:(BOOL)isEditing;
 
+/**
+ *  Called whenever a label is selected, with the label info in parameters.
+ *
+ *  @param jotViewController the jot view controller
+ *  @param labelInfo         the label info serialized
+ */
+- (void)jotViewController:(JotViewController *)jotViewController didSelectLabel:(NSDictionary*)labelInfo;
+
 @end

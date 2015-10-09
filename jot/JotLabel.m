@@ -15,6 +15,7 @@ NSString *const kTextColor = @"Color";
 NSString *const kAlignment = @"Alignment";
 NSString *const kCenter = @"Center";
 NSString *const kRotation = @"kRotation";
+NSString *const kScale = @"Scale";
 NSString *const kFitWidth = @"FitWidth";
 
 @interface JotLabel ()
@@ -144,6 +145,7 @@ NSString *const kFitWidth = @"FitWidth";
 	dic[kAlignment] = @(self.textAlignment);
 	dic[kCenter] = [NSValue valueWithCGPoint:self.center];
 	dic[kRotation] = @(atan2f(self.transform.b, self.transform.a));
+	dic[kScale] = @(self.scale);
 	dic[kFitWidth] = @(self.fitOriginalFontSizeToViewWidth);
 	return dic;
 }
@@ -170,6 +172,9 @@ NSString *const kFitWidth = @"FitWidth";
 	}
 	if (dictionary[kRotation]) {
 		self.transform = CGAffineTransformMakeRotation([dictionary[kRotation] floatValue]);
+	}
+	if (dictionary[kScale]) {
+		self.scale = [dictionary[kScale] floatValue];
 	}
 	if ([dictionary[kFitWidth] boolValue]) {
 		self.fitOriginalFontSizeToViewWidth = YES;

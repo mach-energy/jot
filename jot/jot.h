@@ -7,3 +7,7 @@
 //
 
 #import "JotViewController.h"
+#import "JotDrawView.h"
+#import "JotTouchObject.h"
+#import "JotTextView.h"
+#import "JotLabel.h"

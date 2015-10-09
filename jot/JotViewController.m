@@ -337,18 +337,27 @@ NSString const* kDate = @"Date";
 - (void)handleTapGesture:(UIGestureRecognizer *)recognizer
 {
     if (self.state == JotViewStateText) {
+		// a tap during text
 		CGPoint touch = [recognizer locationOfTouch:0 inView:self.textView];
 		JotLabel *label = [self.textView labelAtPosition:touch];
 		if (label) {
+			// a tap on a label
 			if (label.selected) {
+				// a tap on a label already selected
 				self.state = JotViewStateEditingText;
 			}
 			else {
+				// a tap on a label not selected
 				[self.textView selectLabelAtPosition:touch];
+			
+				if ([self.delegate respondsToSelector:@selector(jotViewController:didSelectLabel:)]) {
+					[self.delegate jotViewController:self didSelectLabel:[label serialize]];
+				}
 			}
 			self.textEditView.textString = label.text;
 		}
 		else {
+			// a tap on a blank space
 			label = [self.textView addLabelAtPosition:touch];
 			self.textEditView.textString = @"";
 			self.state = JotViewStateEditingText;
