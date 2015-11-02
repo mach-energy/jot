@@ -62,17 +62,20 @@
 
 - (void)setTextString:(NSString *)textString
 {
-	if (_selectedLabel) {
-		if (textString.length == 0) {
-			// delete it.
+	if (textString.length == 0) {
+		// delete it.
+		if (_selectedLabel) {
 			[self deleteSelectedLabel];
 		}
-		else {
-			CGPoint center = self.selectedLabel.center;
-			self.selectedLabel.text = textString;
-			[self.selectedLabel autosize];
-			self.selectedLabel.center = center;
+	}
+	else {
+		if (!_selectedLabel) {
+			[self addLabelAtPosition:self.center];
 		}
+		CGPoint center = self.selectedLabel.center;
+		self.selectedLabel.text = textString;
+		[self.selectedLabel autosize];
+		self.selectedLabel.center = center;
 	}
 }
 
@@ -182,6 +185,7 @@
 	self.selectedLabel = [JotLabel new];
 	self.selectedLabel.fitOriginalFontSizeToViewWidth = self.fitOriginalFontSizeToViewWidth;
 	self.selectedLabel.numberOfLines = (self.fitOriginalFontSizeToViewWidth ? 0 : 1);
+	self.selectedLabel.initialTextInsets = self.initialTextInsets;
 	self.selectedLabel.font = self.font;
 	self.selectedLabel.unscaledFontSize = self.font.pointSize;
 	self.selectedLabel.textColor = self.textColor;
