@@ -55,27 +55,9 @@
         self.textContainer.hidden = YES;
         self.userInteractionEnabled = NO;
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillChangeFrameNotification
-                                                          object:nil
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification *note){
-                                                          
-                                                          [self.textContainer.layer removeAllAnimations];
-                                                          
-                                                          CGRect keyboardRectEnd = [note.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-                                                          NSTimeInterval duration = [note.userInfo[UIKeyboardAnimationDurationUserInfoKey] floatValue];
-                                                          
-                                                          [self.textContainer mas_updateConstraints:^(MASConstraintMaker *make) {
-                                                              make.bottom.equalTo(self).offset(-CGRectGetHeight(keyboardRectEnd));
-                                                          }];
-                                                          
-                                                          [UIView animateWithDuration:duration
-                                                                                delay:0.f
-                                                                              options:UIViewAnimationOptionBeginFromCurrentState
-                                                                           animations:^{
-                                                                               [self.textContainer layoutIfNeeded];
-                                                                           } completion:nil];
-                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(
+            handleKeyboardWillChangeFrameNotification:) name:UIKeyboardWillChangeFrameNotification
+            object:nil];
     }
     
     return self;
@@ -84,7 +66,50 @@
 - (void)dealloc
 {
     self.textView.delegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:
+        UIKeyboardWillChangeFrameNotification object:nil];
+}
+
+#pragma mark - Notifications
+
+- (void)handleKeyboardWillChangeFrameNotification:(NSNotification *)aNotification
+{
+    CGRect keyboardRectEnd = [aNotification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    NSTimeInterval duration = [aNotification.userInfo[UIKeyboardAnimationDurationUserInfoKey] floatValue];
+
+    if (self.adjustContentInsetsOnKeyboardFrameChange) {
+        CGRect textViewRect = [self.textContainer convertRect:self.textView.frame toView:self.window];
+        if (CGRectIntersectsRect(keyboardRectEnd, textViewRect)) {
+            CGRect intersectionRect = CGRectIntersection(keyboardRectEnd, textViewRect);
+
+            UIEdgeInsets insets = self.textView.contentInset;
+            insets.bottom = intersectionRect.size.height;
+            self.textView.contentInset = insets;
+
+            insets = self.textView.scrollIndicatorInsets;
+            insets.bottom = intersectionRect.size.height;
+            self.textView.scrollIndicatorInsets = insets;
+        } else {
+            UIEdgeInsets insets = self.textView.contentInset;
+            insets.bottom = 0.0f;
+            self.textView.contentInset = insets;
+
+            insets = self.textView.scrollIndicatorInsets;
+            insets.bottom = 0.0f;
+            self.textView.scrollIndicatorInsets = insets;
+        }
+    } else {
+        [self.textContainer.layer removeAllAnimations];
+
+        [self.textContainer mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.bottom.equalTo(self).offset(-CGRectGetHeight(keyboardRectEnd));
+        }];
+
+        [UIView animateWithDuration:duration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState
+            animations:^{
+                [self.textContainer layoutIfNeeded];
+            } completion:nil];
+	}
 }
 
 #pragma mark - Properties

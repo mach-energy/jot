@@ -94,6 +94,13 @@
  */
 @property (nonatomic, assign) BOOL clipBoundsToEditingInsets;
 
+/**
+ *  TBA
+ *
+ *  @note TBA
+ */
+@property (nonatomic) BOOL adjustContentInsetsOnKeyboardFrameChange;
+
 @end
 
 

@@ -47,6 +47,7 @@ typedef NS_ENUM(NSUInteger, JotViewState){
 
 @import UIKit;
 #import "JotDrawingContainer.h"
+#import "JotTextEditView.h"
 
 @protocol JotViewControllerDelegate;
 
@@ -183,6 +184,8 @@ typedef NS_ENUM(NSUInteger, JotViewState){
 
 
 @property (nonatomic, strong, readonly) JotDrawingContainer *drawingContainer;
+
+@property (nonatomic, strong, readonly) JotTextEditView *textEditView;
 
 /**
  *  Clears all paths from the drawing in and sets the text to an empty string, giving a blank slate.
