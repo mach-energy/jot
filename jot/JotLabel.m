@@ -110,7 +110,7 @@ NSString *const kFitWidth = @"FitWidth";
 	
 	if (_fitOriginalFontSizeToViewWidth) {
 		temporarySizingLabel.numberOfLines = 0;
-		insetViewRect = CGRectInset(self.bounds,
+		insetViewRect = CGRectInset(self.superview.bounds,
 									_initialTextInsets.left + _initialTextInsets.right,
 									_initialTextInsets.top + _initialTextInsets.bottom);
 	} else {

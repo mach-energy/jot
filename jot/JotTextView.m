@@ -180,9 +180,8 @@
 
 - (JotLabel*)addLabelAtPosition:(CGPoint)point {
 	self.selectedLabel = [JotLabel new];
-	if (self.fitOriginalFontSizeToViewWidth) {
-		self.selectedLabel.numberOfLines = 0;
-	}
+	self.selectedLabel.fitOriginalFontSizeToViewWidth = self.fitOriginalFontSizeToViewWidth;
+	self.selectedLabel.numberOfLines = (self.fitOriginalFontSizeToViewWidth ? 0 : 1);
 	self.selectedLabel.font = self.font;
 	self.selectedLabel.unscaledFontSize = self.font.pointSize;
 	self.selectedLabel.textColor = self.textColor;
