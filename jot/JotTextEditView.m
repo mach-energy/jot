@@ -251,22 +251,48 @@
 
 #pragma mark - Text Editing
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
     if ([text isEqualToString: @"\n"]) {
         self.isEditing = NO;
         return NO;
     }
-    
-    if (textView.text.length + (text.length - range.length) > 70) {
-        return NO;
+	
+    BOOL result = YES;
+    NSUInteger actualTextLength = (textView.text.length - range.length);
+    if ((actualTextLength + text.length) > 70) {
+        result = NO;
     }
-    
-    if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location != NSNotFound) {
-        return NO;
+    if (!result) {
+        if (actualTextLength < 70) {
+            NSString *newText = [self cutText:text toLength:(70 - actualTextLength)];
+            if (nil != newText) {
+                UITextRange *textRange = textView.selectedTextRange;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [textView.inputDelegate textWillChange:textView];
+                    [textView replaceRange:textRange withText:newText];
+                    [textView.inputDelegate textDidChange:textView];
+                });
+            }
+        }
     }
-    
-    return YES;
+    return result;
+}
+
+- (NSString *)cutText:(NSString *)aText toLength:(NSUInteger)aLength
+{
+    NSRange range;
+    NSUInteger textLength = aLength;
+    do {
+        range = [aText rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, textLength)];
+    }
+    while ((range.length > aLength) && (--textLength > 0));
+
+    NSString *result = nil;
+    if ((range.length > 0) && (range.length <= aLength)) {
+        result = [aText substringWithRange:range];
+    }
+    return result;
 }
 
 @end
