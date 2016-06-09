@@ -293,7 +293,7 @@ NSString const* kUndoArray = @"UndoArray";
 	else {
 		size = self.bounds.size;
 	}
-    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
     
 	[backgroundImage drawAtPoint:CGPointZero];
 	
