@@ -29,6 +29,8 @@ NSString const* kDate = @"Date";
 @property (nonatomic, strong) JotDrawView *drawView;
 @property (nonatomic, strong) JotTextEditView *textEditView;
 @property (nonatomic, strong) JotTextView *textView;
+@property (nonatomic, strong) UIImage *imageToBeDrawnOn;
+@property (nonatomic, assign) CGFloat outputScaleFactor;
 
 @end
 
@@ -37,18 +39,18 @@ NSString const* kDate = @"Date";
 - (instancetype)init
 {
     if ((self = [super init])) {
-        
         _drawView = [JotDrawView new];
+        
         _textEditView = [JotTextEditView new];
         _textEditView.delegate = self;
         _textView = [JotTextView new];
         _drawingContainer = [JotDrawingContainer new];
         self.drawingContainer.delegate = self;
-		self.drawingContainer.discreteGridSize = 0; // no grid
+        self.drawingContainer.discreteGridSize = 0; // no grid
         
         _font = self.textView.font;
         _fontSize = self.textView.fontSize;
-		_textAlignment = self.textView.textAlignment;
+        _textAlignment = self.textView.textAlignment;
         _textColor = self.textView.textColor;
         _textString = @"";
         _drawingColor = self.drawView.strokeColor;
@@ -56,8 +58,8 @@ NSString const* kDate = @"Date";
         _textEditingInsets = self.textEditView.textEditingInsets;
         _initialTextInsets = self.textView.initialTextInsets;
         _state = JotViewStateDefault;
-		
-		self.textEditView.textAlignment = NSTextAlignmentLeft;
+        
+        self.textEditView.textAlignment = NSTextAlignmentLeft;
         
         _pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchGesture:)];
         self.pinchRecognizer.delegate = self;
@@ -71,7 +73,6 @@ NSString const* kDate = @"Date";
         _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
         self.tapRecognizer.delegate = self;
     }
-    
     return self;
 }
 
@@ -79,6 +80,12 @@ NSString const* kDate = @"Date";
 {
     self.textEditView.delegate = nil;
     self.drawingContainer.delegate = nil;
+}
+
+- (void)setupForImage:(UIImage *)image imageViewSize:(CGSize)imageViewSize {
+    self.imageToBeDrawnOn = image;
+    self.outputScaleFactor = [self outputScaleFactorForImage:image imageContainerSize:imageViewSize];
+    [_drawView setupForImage:image withScaleFactor:self.outputScaleFactor];
 }
 
 - (void)viewDidLoad
@@ -90,22 +97,31 @@ NSString const* kDate = @"Date";
     
     [self.view addSubview:self.drawingContainer];
     [self.drawingContainer mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view);
+        make.center.equalTo(self.view);
+        make.size.mas_equalTo(CGSizeMake(self.imageToBeDrawnOn.size.width / self.outputScaleFactor,
+                                         self.imageToBeDrawnOn.size.height / self.outputScaleFactor));
     }];
     
     [self.drawingContainer addSubview:self.drawView];
     [self.drawView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.drawingContainer);
+
+        make.size.mas_equalTo(CGSizeMake(self.imageToBeDrawnOn.size.width / self.outputScaleFactor,
+                                         self.imageToBeDrawnOn.size.height / self.outputScaleFactor));
+        make.center.equalTo(self.view);
     }];
     
     [self.drawingContainer addSubview:self.textView];
     [self.textView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.drawingContainer);
+        make.size.mas_equalTo(CGSizeMake(self.imageToBeDrawnOn.size.width / self.outputScaleFactor,
+                                         self.imageToBeDrawnOn.size.height / self.outputScaleFactor));
+        make.center.equalTo(self.view);
     }];
     
     [self.view addSubview:self.textEditView];
     [self.textEditView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view);
+        make.size.mas_equalTo(CGSizeMake(self.imageToBeDrawnOn.size.width / self.outputScaleFactor,
+                                         self.imageToBeDrawnOn.size.height / self.outputScaleFactor));
+        make.center.equalTo(self.view);
     }];
     
     [self.drawingContainer addGestureRecognizer:self.tapRecognizer];
@@ -286,21 +302,21 @@ NSString const* kDate = @"Date";
 
 #pragma mark - Output UIImage
 
-- (UIImage *)drawOnImage:(UIImage *)image
+- (UIImage *)drawOnImage
 {
-    UIImage *drawImage = [self.drawView drawOnImage:image];
+    UIImage *drawImage = [self.drawView drawOnImage];
     
     return [self.textView drawTextOnImage:drawImage];
 }
 
 - (UIImage *)renderImage
 {
-    return [self renderImageWithScale:1.f];
+    return [self renderImageWithScale:[UIScreen mainScreen].scale];
 }
 
 - (UIImage *)renderImageOnColor:(UIColor *)color
 {
-    return [self renderImageWithScale:1.f onColor:color];
+    return [self renderImageWithScale:[UIScreen mainScreen].scale onColor:color];
 }
 
 - (UIImage *)renderImageWithScale:(CGFloat)scale
@@ -483,5 +499,20 @@ NSString const* kDate = @"Date";
 	}
 }
 
+#pragma mark - Helper Methods
+
+- (CGFloat)outputScaleFactorForImage:(UIImage *)image imageContainerSize:(CGSize)containerSize {
+    
+    int heightDelta = ABS(containerSize.height - image.size.height);
+    int widthDelta = ABS(containerSize.width - image.size.width);
+    
+    CGFloat scale = 1.f;
+    if (heightDelta > widthDelta) {
+        scale = image.size.height / containerSize.height;
+    } else {
+        scale = image.size.width / containerSize.width;
+    }
+    return scale;
+}
 
 @end
