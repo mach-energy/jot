@@ -191,9 +191,9 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  *  This setup will prepare the view for any scaling done by the content display mode
  *  of the UIImageView so the rendered output is scaled properly.
  *  @param image the background image to draw on top of.
- *  @param imageViewSize the size of the UIImageView containing background image to draw on top of.
+ *  @param imageViewBounds the bounds of the UIImageView containing background image to draw on top of.
  */
-- (void)setupForImage:(UIImage *)image imageViewSize:(CGSize)imageViewSize;
+- (void)setupForImage:(UIImage *)image imageViewBounds:(CGRect)imageViewBounds;
 
 /**
  *  Clears all paths from the drawing in and sets the text to an empty string, giving a blank slate.
