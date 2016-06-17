@@ -301,4 +301,7 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  */
 - (void)jotViewController:(JotViewController *)jotViewController didSelectLabel:(NSDictionary*)labelInfo;
 
+- (void)shouldDisableUndo;
+- (void)shouldEnableUndo;
+
 @end

@@ -98,7 +98,12 @@ NSString const* kUndoArray = @"UndoArray";
 	if (self.undoIndex > 0) {
 		self.undoIndex -= 1;
 		[self refreshBitmap];
-	}
+        if (self.undoIndex == 0) {
+            if ([self.delegate respondsToSelector:@selector(shouldDisableUndo)]) {
+                [self.delegate shouldDisableUndo];
+            }
+        }
+    }
 }
 
 - (void)redo {
@@ -111,6 +116,9 @@ NSString const* kUndoArray = @"UndoArray";
 - (void)undoAddState {
 	[self.undoArray addObject:@(self.pathsArray.count)];
 	self.undoIndex = self.undoArray.count-1;
+    if ([self.delegate respondsToSelector:@selector(shouldEnableUndo)]) {
+        [self.delegate shouldEnableUndo];
+    }
 }
 
 - (void)clearRedo {

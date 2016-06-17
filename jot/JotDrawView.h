@@ -12,11 +12,20 @@
 extern NSString const* kObjects;
 extern NSString const* kUndoArray;
 
+@protocol JotDrawViewDelegate <NSObject>
+
+- (void)shouldDisableUndo;
+- (void)shouldEnableUndo;
+
+@end
+
 /**
  *  Private class to handle touch drawing. Change the properties
  *  in a JotViewController instance to configure this private class.
  */
 @interface JotDrawView : UIView
+
+@property (nonatomic, weak) id<JotDrawViewDelegate> delegate;
 
 /**
  *  Set to YES if you want the stroke width to be constant,

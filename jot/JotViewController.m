@@ -19,7 +19,7 @@ NSString const* kDrawView = @"DrawView";
 NSString const* kLabels = @"Labels";
 NSString const* kDate = @"Date";
 
-@interface JotViewController () <UIGestureRecognizerDelegate, JotTextEditViewDelegate, JotDrawingContainerDelegate>
+@interface JotViewController () <UIGestureRecognizerDelegate, JotTextEditViewDelegate, JotDrawingContainerDelegate, JotDrawViewDelegate>
 
 @property (nonatomic, strong) UITapGestureRecognizer *tapRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchRecognizer;
@@ -41,6 +41,7 @@ NSString const* kDate = @"Date";
 {
     if ((self = [super init])) {
         _drawView = [JotDrawView new];
+        _drawView.delegate = self;
         
         _textEditView = [JotTextEditView new];
         _textEditView.delegate = self;
@@ -514,6 +515,20 @@ NSString const* kDate = @"Date";
         scale = image.size.width / containerSize.width;
     }
     return scale;
+}
+
+#pragma mark - JotDrawViewDelegate
+
+- (void)shouldDisableUndo {
+    if ([self.delegate respondsToSelector:@selector(shouldDisableUndo)]) {
+        [self.delegate shouldDisableUndo];
+    }
+}
+
+- (void)shouldEnableUndo {
+    if ([self.delegate respondsToSelector:@selector(shouldEnableUndo)]) {
+        [self.delegate shouldEnableUndo];
+    }
 }
 
 @end
