@@ -413,7 +413,9 @@ NSString const* kDate = @"Date";
     }
 	else if (self.state == JotViewStateDrawLines) {
 		[self.drawView drawLineBeganAtPoint:touchPoint];
-	}
+    } else if (self.state == JotViewStateEditingText) {
+        self.state = JotViewStateText;
+    }
 }
 
 - (void)jotDrawingContainerTouchMovedToPoint:(CGPoint)touchPoint
