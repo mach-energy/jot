@@ -413,6 +413,10 @@ NSString const* kDate = @"Date";
     } else if (self.state == JotViewStateEditingText) {
         self.state = JotViewStateText;
     }
+    
+    if ([self.delegate respondsToSelector:@selector(drawingBegan)]) {
+        [self.delegate drawingBegan];
+    }
 }
 
 - (void)jotDrawingContainerTouchMovedToPoint:(CGPoint)touchPoint
@@ -433,6 +437,10 @@ NSString const* kDate = @"Date";
 	else if (self.state == JotViewStateDrawLines) {
 		[self.drawView drawLineEndedAtPoint:touchPoint];
 	}
+    
+    if ([self.delegate respondsToSelector:@selector(drawingEnded)]) {
+        [self.delegate drawingEnded];
+    }
 }
 
 #pragma mark - UIGestureRecognizer Delegate

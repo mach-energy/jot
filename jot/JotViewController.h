@@ -304,4 +304,7 @@ typedef NS_ENUM(NSUInteger, JotViewState){
 - (void)shouldDisableUndo;
 - (void)shouldEnableUndo;
 
+- (void)drawingBegan;
+- (void)drawingEnded;
+
 @end
