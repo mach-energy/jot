@@ -101,12 +101,20 @@
     } else {
         [self.textContainer.layer removeAllAnimations];
 
-        [self mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self.superview).offset(-CGRectGetHeight(keyboardRectEnd));
-            make.left.equalTo(self.superview);
-            make.right.equalTo(self.superview);
-            make.height.equalTo(@200);
-        }];
+        if (keyboardRectEnd.origin.y >= [UIScreen mainScreen].applicationFrame.size.height) {
+            [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.size.mas_equalTo(self.superview);
+                make.center.equalTo(self.superview);
+            }];
+            
+        } else {
+            [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.bottom.equalTo(self.superview).offset(-CGRectGetHeight(keyboardRectEnd));
+                make.left.equalTo(self.superview);
+                make.right.equalTo(self.superview);
+                make.height.equalTo(@200);
+            }];
+        }
         
         [UIView animateWithDuration:duration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState
             animations:^{
