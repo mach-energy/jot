@@ -407,15 +407,14 @@ NSString const* kDate = @"Date";
 {
     if (self.state == JotViewStateDrawing) {
         [self.drawView drawTouchBeganAtPoint:touchPoint];
+        if ([self.delegate respondsToSelector:@selector(drawingBegan)]) {
+            [self.delegate drawingBegan];
+        }
     }
 	else if (self.state == JotViewStateDrawLines) {
 		[self.drawView drawLineBeganAtPoint:touchPoint];
     } else if (self.state == JotViewStateEditingText) {
         self.state = JotViewStateText;
-    }
-    
-    if ([self.delegate respondsToSelector:@selector(drawingBegan)]) {
-        [self.delegate drawingBegan];
     }
 }
 
@@ -433,14 +432,13 @@ NSString const* kDate = @"Date";
 {
     if (self.state == JotViewStateDrawing) {
         [self.drawView drawTouchEndedAtPoint:touchPoint];
+        if ([self.delegate respondsToSelector:@selector(drawingEnded)]) {
+            [self.delegate drawingEnded];
+        }
     }
 	else if (self.state == JotViewStateDrawLines) {
 		[self.drawView drawLineEndedAtPoint:touchPoint];
 	}
-    
-    if ([self.delegate respondsToSelector:@selector(drawingEnded)]) {
-        [self.delegate drawingEnded];
-    }
 }
 
 #pragma mark - UIGestureRecognizer Delegate
