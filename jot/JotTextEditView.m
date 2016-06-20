@@ -101,18 +101,19 @@
     } else {
         [self.textContainer.layer removeAllAnimations];
 
-        if (keyboardRectEnd.origin.y >= [UIScreen mainScreen].applicationFrame.size.height) {
+        if ([self keyboardWillDisappear:keyboardRectEnd]) {
             [self mas_remakeConstraints:^(MASConstraintMaker *make) {
                 make.size.mas_equalTo(self.superview);
                 make.center.equalTo(self.superview);
             }];
             
         } else {
+            CGFloat screenSpaceRemaining = CGRectGetHeight([UIScreen mainScreen].applicationFrame) - CGRectGetHeight(keyboardRectEnd);
             [self mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.bottom.equalTo(self.superview).offset(-CGRectGetHeight(keyboardRectEnd));
+                make.top.equalTo(self.superview).offset(screenSpaceRemaining/6);
                 make.left.equalTo(self.superview);
                 make.right.equalTo(self.superview);
-                make.height.equalTo(@200);
+                make.height.equalTo(@(screenSpaceRemaining/3));
             }];
         }
         
@@ -121,6 +122,10 @@
                 [self.textContainer layoutIfNeeded];
             } completion:nil];
 	}
+}
+
+- (BOOL)keyboardWillDisappear:(CGRect)keyboardRectEnd {
+    return keyboardRectEnd.origin.y >= [UIScreen mainScreen].applicationFrame.size.height;
 }
 
 #pragma mark - Properties

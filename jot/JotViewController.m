@@ -98,31 +98,28 @@ NSString const* kDate = @"Date";
     self.view.backgroundColor = [UIColor clearColor];
     self.drawingContainer.clipsToBounds = YES;
     
-    CGSize jotContainerSize = CGSizeMake(MIN(self.imageToBeDrawnOn.size.width / self.outputScaleFactor, self.imageContainerBounds.size.width),
-                                         MIN(self.imageToBeDrawnOn.size.height / self.outputScaleFactor, self.imageContainerBounds.size.height));
-    
     [self.view addSubview:self.drawingContainer];
     [self.drawingContainer mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.size.mas_equalTo(self.view);
         make.center.equalTo(self.view);
-        make.size.mas_equalTo(jotContainerSize);
     }];
     
     [self.drawingContainer addSubview:self.drawView];
     [self.drawView mas_makeConstraints:^(MASConstraintMaker *make) {
 
-        make.size.mas_equalTo(jotContainerSize);
+        make.size.mas_equalTo(self.view);
         make.center.equalTo(self.view);
     }];
     
     [self.drawingContainer addSubview:self.textView];
     [self.textView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.size.mas_equalTo(jotContainerSize);
+        make.size.mas_equalTo(self.view);
         make.center.equalTo(self.view);
     }];
     
     [self.view addSubview:self.textEditView];
     [self.textEditView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.size.mas_equalTo(jotContainerSize);
+        make.size.mas_equalTo(self.view);
         make.center.equalTo(self.view);
     }];
     
