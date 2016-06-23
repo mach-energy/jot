@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name		= "jot"
-  s.version		= "0.1.5"
+  s.version		= "0.1.6"
   s.summary		= "An easy way to add drawings and text to images"
   s.homepage		= "https://github.com/IFTTT/jot"
   s.license		= 'MIT'
@@ -9,8 +9,8 @@ Pod::Spec.new do |s|
                           "Max Meyers" => "max@ifttt.com",
                           "Devin Foley" => "devin@ifttt.com" 
                           }
-  #s.source		= { :git => "https://github.com/IFTTT/jot.git", :tag => s.version.to_s }
-  s.source    = { :git => "https://github.com/martinprot/jot.git" }
+  #s.source		= { :git => "https://github.com/VouchrApp/jot.git", :tag => s.version.to_s }
+  s.source    = { :git => "https://github.com/VouchrApp/jot.git" }
 
   s.social_media_url	= 'https://twitter.com/skelovenko'
   s.platform		= :ios, '7.0'
