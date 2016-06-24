@@ -143,11 +143,11 @@ extern NSString const* kUndoArray;
 /**
  *  Initialize the view with an UImageView to be drawn on.
  *
- *  @param image The background image to be drawn on.
- *  @param outputScaleFactor The amount to scale the image when rendering output.
+ *  @param imageView The UIImageView containing the background image to be drawn on.
  *  @note This method only needs to be called if the image being drawn on has been scaled.
+ *  The UIImageView is needed to calculate the proper scaling for rendering.
  */
-- (void)setupForImage:(UIImage *)image withScaleFactor:(CGFloat)outputScaleFactor;
+- (void)setupForImage:(UIImageView *)imageView;
 
 /**
  *  Overlays the drawing on the image passed in on setup, rendering
