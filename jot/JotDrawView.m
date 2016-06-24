@@ -23,6 +23,7 @@ NSString const* kUndoArray = @"UndoArray";
 
 @property (nonatomic, strong) UIImage *cachedImage;
 @property (nonatomic, strong) UIImage *imageToBeDrawnOn;
+@property (nonatomic) CGRect imageContainerBounds;
 
 @property (nonatomic, strong) NSMutableArray <JotTouchObject*> *pathsArray;
 @property (nonatomic, strong) NSMutableArray <NSNumber*> *undoArray;
@@ -65,10 +66,12 @@ NSString const* kUndoArray = @"UndoArray";
     return self;
 }
 
-- (void)setupForImage:(UIImage *)image withScaleFactor:(CGFloat)outputScaleFactor
+- (void)setupForImage:(UIImageView *)imageView
 {
-    self.imageToBeDrawnOn = image;
-    self.outputScaleFactor = outputScaleFactor;
+    self.imageToBeDrawnOn = imageView.image;
+    self.imageContainerBounds = imageView.bounds;
+    self.outputScaleFactor = [self outputScaleFactorForImage:self.imageToBeDrawnOn
+                                          imageContainerSize:self.imageContainerBounds.size];
 }
 
 #pragma mark - Undo
@@ -321,7 +324,8 @@ NSString const* kUndoArray = @"UndoArray";
 	}
     UIGraphicsBeginImageContextWithOptions(size, NO, scale);
     
-	[backgroundImage drawAtPoint:CGPointZero];
+    CGPoint offset = [self offsetForScaledImage:backgroundImage containerBounds:self.imageContainerBounds];
+    [backgroundImage drawAtPoint:offset];
 	
     [self drawAllPaths];
     
@@ -339,6 +343,29 @@ NSString const* kUndoArray = @"UndoArray";
 		JotTouchObject *touchObject = self.pathsArray[i];
 		[touchObject jotDrawWithScaling:YES];
 	}
+}
+
+#pragma mark - Helper Methods
+
+- (CGFloat)outputScaleFactorForImage:(UIImage *)image imageContainerSize:(CGSize)containerSize {
+    
+    int heightDelta = ABS(containerSize.height - image.size.height);
+    int widthDelta = ABS(containerSize.width - image.size.width);
+    
+    CGFloat scale = 1.f;
+    if (heightDelta > widthDelta) {
+        scale = image.size.height / containerSize.height;
+    } else {
+        scale = image.size.width / containerSize.width;
+    }
+    return scale;
+}
+
+- (CGPoint)offsetForScaledImage:(UIImage *)image containerBounds:(CGRect)containerBounds {
+    CGSize scaledImageSize = CGSizeMake(image.size.width / self.outputScaleFactor,
+                                        image.size.height / self.outputScaleFactor);
+    return CGPointMake((containerBounds.size.width - scaledImageSize.width) / 2,
+                                 (containerBounds.size.height - scaledImageSize.height) / 2);
 }
 
 #pragma mark - Serialization

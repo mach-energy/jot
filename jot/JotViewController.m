@@ -84,11 +84,10 @@ NSString const* kDate = @"Date";
     self.drawingContainer.delegate = nil;
 }
 
-- (void)setupForImage:(UIImage *)image imageViewBounds:(CGRect)imageViewBounds {
-    self.imageToBeDrawnOn = image;
-    self.imageContainerBounds = imageViewBounds;
-    self.outputScaleFactor = [self outputScaleFactorForImage:image imageContainerSize:imageViewBounds.size];
-    [_drawView setupForImage:image withScaleFactor:self.outputScaleFactor];
+- (void)setupForImageView:(UIImageView *)imageView {
+    self.imageToBeDrawnOn = imageView.image;
+    self.imageContainerBounds = imageView.bounds;
+    [_drawView setupForImage:imageView];
 }
 
 - (void)viewDidLoad
@@ -304,7 +303,6 @@ NSString const* kDate = @"Date";
 - (UIImage *)drawOnImage
 {
     UIImage *drawImage = [self.drawView drawOnImage];
-    
     return [self.textView drawTextOnImage:drawImage withImageContainerBounds:self.imageContainerBounds];
 }
 
@@ -506,21 +504,7 @@ NSString const* kDate = @"Date";
 	}
 }
 
-#pragma mark - Helper Methods
 
-- (CGFloat)outputScaleFactorForImage:(UIImage *)image imageContainerSize:(CGSize)containerSize {
-    
-    int heightDelta = ABS(containerSize.height - image.size.height);
-    int widthDelta = ABS(containerSize.width - image.size.width);
-    
-    CGFloat scale = 1.f;
-    if (heightDelta > widthDelta) {
-        scale = image.size.height / containerSize.height;
-    } else {
-        scale = image.size.width / containerSize.width;
-    }
-    return scale;
-}
 
 #pragma mark - JotDrawViewDelegate
 
