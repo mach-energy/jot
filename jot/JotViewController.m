@@ -143,7 +143,7 @@ NSString const* kDate = @"Date";
             [self.delegate jotViewController:self isEditingText:YES];
         }
 		
-		if (state != JotViewStateText && state != JotViewStateEditingText) {
+		if (state != JotViewStateEditingText) {
 			[self.textView deselectLabel];
 		}
         
