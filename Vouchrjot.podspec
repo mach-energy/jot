@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name		= "Vouchrjot"
-  s.version		= "0.1.7"
+  s.version		= "0.1.8"
   s.summary		= "An easy way to add drawings and text to images"
   s.homepage		= "https://github.com/IFTTT/jot"
   s.license		= 'MIT'
