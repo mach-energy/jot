@@ -302,7 +302,7 @@ NSString const* kUndoArray = @"UndoArray";
 
 - (UIImage *)drawOnImage
 {
-	return [self drawAllPathsImageScale:[UIScreen mainScreen].scale
+	return [self drawAllPathsImageScale:1.f
                         backgroundImage:self.imageToBeDrawnOn];
 }
 
@@ -325,7 +325,9 @@ NSString const* kUndoArray = @"UndoArray";
     UIGraphicsBeginImageContextWithOptions(size, NO, scale);
     
     CGPoint offset = [self offsetForScaledImage:backgroundImage containerBounds:self.imageContainerBounds];
-    [backgroundImage drawAtPoint:offset];
+    [backgroundImage drawInRect:CGRectMake(offset.x, offset.y,
+                                           backgroundImage.size.width - offset.x,
+                                           backgroundImage.size.height - offset.y)];
 	
     [self drawAllPaths];
     

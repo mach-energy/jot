@@ -296,18 +296,19 @@
 #pragma mark - Image Rendering
 
 - (UIImage *)drawTextOnImage:(UIImage *)image withImageContainerBounds:(CGRect)imageContainerBounds {
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
+    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.f);
     _selectedLabel.selected = NO; // remove the selection border
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
     _selectedLabel.selected = YES; // remove the selection border
     UIImage *textImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, image.size.width, image.size.height));
-    UIGraphicsBeginImageContextWithOptions(maxRect.size, NO, 0);
-    [image drawAtPoint:CGPointZero];
     CGFloat xOffset = ABS(imageContainerBounds.size.width - self.bounds.size.width) / 2;
     CGFloat yOffset = ABS(imageContainerBounds.size.height - self.bounds.size.height) / 2;
+    CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, image.size.width - xOffset, image.size.height - yOffset));
+    UIGraphicsBeginImageContextWithOptions(maxRect.size, NO, 1.f);
+    [image drawAtPoint:CGPointZero];
+    
     [textImage drawInRect:CGRectMake(xOffset, yOffset, image.size.width, image.size.height)];
     UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -323,7 +324,7 @@
 
 - (UIImage *)drawTextOnImage:(UIImage *)image
 {
-    return [self drawTextImageWithScale:[UIScreen mainScreen].scale backgroundImage:image];
+    return [self drawTextImageWithScale:1.f backgroundImage:image];
 }
 
 - (UIImage *)drawTextImageWithScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
