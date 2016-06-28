@@ -92,6 +92,8 @@ NSString const* kDate = @"Date";
 {
     [super viewDidLoad];
     
+    self.drawingColor = [UIColor whiteColor];
+    self.textColor = [UIColor whiteColor];
     self.view.backgroundColor = [UIColor clearColor];
     self.drawingContainer.clipsToBounds = YES;
     
