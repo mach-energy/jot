@@ -301,13 +301,8 @@ NSString const* kDate = @"Date";
 - (UIImage *)drawOnImage
 {
     UIImage *drawImage = [self.drawView drawOnImage];
-//    return drawImage;
     return [self.textView drawTextImageWithScale:[self.imageView scaleFactorForAspectFill]
                                  backgroundImage:drawImage];
-    
-    
-    
-//    return [self.textView drawTextOnImage:drawImage withImageContainerBounds:self.imageContainerBounds];
 }
 
 - (UIImage *)renderImage
