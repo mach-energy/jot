@@ -7,7 +7,7 @@
 //
 
 #import "JotTextView.h"
-
+#import "UIImageView+ImageFrame.h"
 #import "JotLabel.h"
 
 @interface JotTextView ()
@@ -295,25 +295,27 @@
 
 #pragma mark - Image Rendering
 
-- (UIImage *)drawTextOnImage:(UIImage *)image withImageContainerBounds:(CGRect)imageContainerBounds {
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.f);
-    _selectedLabel.selected = NO; // remove the selection border
-    [self.layer renderInContext:UIGraphicsGetCurrentContext()];
-    _selectedLabel.selected = YES; // remove the selection border
-    UIImage *textImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    CGFloat xOffset = ABS(imageContainerBounds.size.width - self.bounds.size.width) / 2;
-    CGFloat yOffset = ABS(imageContainerBounds.size.height - self.bounds.size.height) / 2;
-    CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, image.size.width - xOffset, image.size.height - yOffset));
-    UIGraphicsBeginImageContextWithOptions(maxRect.size, NO, 1.f);
-    [image drawAtPoint:CGPointZero];
-    
-    [textImage drawInRect:CGRectMake(xOffset, yOffset, image.size.width, image.size.height)];
-    UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return [UIImage imageWithCGImage:finalImage.CGImage scale:1.f orientation:image.imageOrientation];
-}
+//- (UIImage *)drawTextOnImageView:(UIImageView *)imageView {
+//    
+////    CGRect scaledImageFrame = [imageView frameForAspectFillImage];
+//    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.f);
+//    _selectedLabel.selected = NO; // remove the selection border
+//    [self.layer renderInContext:UIGraphicsGetCurrentContext()];
+//    _selectedLabel.selected = YES; // remove the selection border
+//    UIImage *textImage = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+//    
+//    CGFloat xOffset = ABS(imageContainerBounds.size.width - self.bounds.size.width) / 2;
+//    CGFloat yOffset = ABS(imageContainerBounds.size.height - self.bounds.size.height) / 2;
+//    CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, image.size.width - xOffset, image.size.height - yOffset));
+//    UIGraphicsBeginImageContextWithOptions(maxRect.size, NO, 1.f);
+//    [image drawAtPoint:CGPointZero];
+//    
+//    [textImage drawInRect:CGRectMake(xOffset, yOffset, image.size.width, image.size.height)];
+//    UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+//    return [UIImage imageWithCGImage:finalImage.CGImage scale:1.f orientation:image.imageOrientation];
+//}
 
 - (UIImage *)renderDrawTextViewWithSize:(CGSize)size
 {
@@ -337,11 +339,13 @@
 	else {
 		size = self.bounds.size;
 	}
-    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
+    UIGraphicsBeginImageContextWithOptions(size, NO, 1.f);
     
 	[backgroundImage drawAtPoint:CGPointZero];
+    CGContextScaleCTM(UIGraphicsGetCurrentContext(), scale, scale);
 	
 	_selectedLabel.selected = NO; // remove the selection border
+
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
 	_selectedLabel.selected = YES;
 	

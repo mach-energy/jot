@@ -11,6 +11,7 @@
 #import "JotTouchBezier.h"
 #import "JotTouchLine.h"
 #import "UIImage+Jot.h"
+#import "UIImageView+ImageFrame.h"
 
 CGFloat const kJotVelocityFilterWeight = 0.9f;
 CGFloat const kJotInitialVelocity = 220.f;
@@ -22,8 +23,7 @@ NSString const* kUndoArray = @"UndoArray";
 @interface JotDrawView ()
 
 @property (nonatomic, strong) UIImage *cachedImage;
-@property (nonatomic, strong) UIImage *imageToBeDrawnOn;
-@property (nonatomic) CGRect imageContainerBounds;
+@property (nonatomic, weak) UIImageView *imageView;
 
 @property (nonatomic, strong) NSMutableArray <JotTouchObject*> *pathsArray;
 @property (nonatomic, strong) NSMutableArray <NSNumber*> *undoArray;
@@ -34,7 +34,6 @@ NSString const* kUndoArray = @"UndoArray";
 @property (nonatomic, assign) CGFloat lastVelocity;
 @property (nonatomic, assign) CGFloat lastWidth;
 @property (nonatomic, assign) CGFloat initialVelocity;
-@property (nonatomic, assign) CGFloat outputScaleFactor;
 
 @end
 
@@ -66,12 +65,9 @@ NSString const* kUndoArray = @"UndoArray";
     return self;
 }
 
-- (void)setupForImage:(UIImageView *)imageView
+- (void)setupForImageView:(UIImageView *)imageView
 {
-    self.imageToBeDrawnOn = imageView.image;
-    self.imageContainerBounds = imageView.bounds;
-    self.outputScaleFactor = [self outputScaleFactorForImage:self.imageToBeDrawnOn
-                                          imageContainerSize:self.imageContainerBounds.size];
+    self.imageView = imageView;
 }
 
 #pragma mark - Undo
@@ -162,7 +158,7 @@ NSString const* kUndoArray = @"UndoArray";
     self.pointsCounter = 0;
     [self.pointsArray removeAllObjects];
 	JotTouchPoint *touchPoint = [JotTouchPoint withPoint:point
-                                             scaleFactor:self.outputScaleFactor];
+                                             scaleFactor:[self.imageView scaleFactorForAspectFill]];
     [self.pointsArray addObject:touchPoint];
 	
 	touchPoint.strokeWidth = self.strokeWidth;
@@ -178,19 +174,20 @@ NSString const* kUndoArray = @"UndoArray";
 - (void)drawTouchMovedToPoint:(CGPoint)touchPoint
 {
     self.pointsCounter += 1;
-    [self.pointsArray addObject:[JotTouchPoint withPoint:touchPoint scaleFactor:self.outputScaleFactor]];
+    [self.pointsArray addObject:[JotTouchPoint withPoint:touchPoint
+                                             scaleFactor:[self.imageView scaleFactorForAspectFill]]];
     
     if (self.pointsCounter == 4) {
         
         self.pointsArray[3] = [JotTouchPoint withPoint:CGPointMake(([self.pointsArray[2] CGPointValue].x + [self.pointsArray[4] CGPointValue].x)/2.f,
                                                                    ([self.pointsArray[2] CGPointValue].y + [self.pointsArray[4] CGPointValue].y)/2.f)
-                                           scaleFactor:self.outputScaleFactor];
+                                           scaleFactor:[self.imageView scaleFactorForAspectFill]];
 		
 		JotTouchBezier *bezierPath = [JotTouchBezier withStartPoint:[self.pointsArray[0] CGPointValue]
 														   endPoint:[self.pointsArray[3] CGPointValue]
 													  controlPoint1:[self.pointsArray[1] CGPointValue]
 													  controlPoint2:[self.pointsArray[2] CGPointValue]
-                                                        scaleFactor:self.outputScaleFactor];
+                                                        scaleFactor:[self.imageView scaleFactorForAspectFill]];
 		bezierPath.strokeColor = self.strokeColor;
 		bezierPath.constantWidth = self.constantStrokeWidth;
 		
@@ -303,7 +300,7 @@ NSString const* kUndoArray = @"UndoArray";
 - (UIImage *)drawOnImage
 {
 	return [self drawAllPathsImageScale:1.f
-                        backgroundImage:self.imageToBeDrawnOn];
+                        backgroundImage:self.imageView.image];
 }
 
 - (UIImage *)drawOnImage:(UIImage *)image
@@ -314,21 +311,19 @@ NSString const* kUndoArray = @"UndoArray";
 
 - (UIImage *)drawAllPathsImageScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
 {
-	CGSize size;
-	if (backgroundImage) {
-		CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, backgroundImage.size.width, backgroundImage.size.height));
-		size = maxRect.size;
-	}
-	else {
-		size = self.bounds.size;
-	}
-    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
+    CGRect scaledImageFrame = [self.imageView frameForAspectFillImage];
+    CGSize finalImageSize = CGSizeMake(backgroundImage.size.width + scaledImageFrame.origin.x*2,
+                                       backgroundImage.size.height + scaledImageFrame.origin.y*2);
+    UIGraphicsBeginImageContextWithOptions(finalImageSize, NO, scale);
     
-    CGPoint offset = [self offsetForScaledImage:backgroundImage containerBounds:self.imageContainerBounds];
-    [backgroundImage drawInRect:CGRectMake(offset.x, offset.y,
-                                           backgroundImage.size.width - offset.x,
-                                           backgroundImage.size.height - offset.y)];
+    [backgroundImage drawInRect:CGRectMake(scaledImageFrame.origin.x,
+                                           scaledImageFrame.origin.y,
+                                           backgroundImage.size.width,
+                                           backgroundImage.size.height)];
 	
+    CGContextTranslateCTM(UIGraphicsGetCurrentContext(),
+                          -scaledImageFrame.origin.x/2,
+                          -scaledImageFrame.origin.y/2);
     [self drawAllPaths];
     
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -345,29 +340,6 @@ NSString const* kUndoArray = @"UndoArray";
 		JotTouchObject *touchObject = self.pathsArray[i];
 		[touchObject jotDrawWithScaling:YES];
 	}
-}
-
-#pragma mark - Helper Methods
-
-- (CGFloat)outputScaleFactorForImage:(UIImage *)image imageContainerSize:(CGSize)containerSize {
-    
-    int heightDelta = ABS(containerSize.height - image.size.height);
-    int widthDelta = ABS(containerSize.width - image.size.width);
-    
-    CGFloat scale = 1.f;
-    if (heightDelta > widthDelta) {
-        scale = image.size.height / containerSize.height;
-    } else {
-        scale = image.size.width / containerSize.width;
-    }
-    return scale;
-}
-
-- (CGPoint)offsetForScaledImage:(UIImage *)image containerBounds:(CGRect)containerBounds {
-    CGSize scaledImageSize = CGSizeMake(image.size.width / self.outputScaleFactor,
-                                        image.size.height / self.outputScaleFactor);
-    return CGPointMake((containerBounds.size.width - scaledImageSize.width) / 2,
-                                 (containerBounds.size.height - scaledImageSize.height) / 2);
 }
 
 #pragma mark - Serialization

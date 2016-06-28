@@ -14,6 +14,7 @@
 #import <Masonry/Masonry.h>
 #import "UIImage+Jot.h"
 #import "JotDrawingContainer.h"
+#import "UIImageView+ImageFrame.h"
 
 NSString const* kDrawView = @"DrawView";
 NSString const* kLabels = @"Labels";
@@ -29,9 +30,7 @@ NSString const* kDate = @"Date";
 @property (nonatomic, strong) JotDrawView *drawView;
 @property (nonatomic, strong) JotTextEditView *textEditView;
 @property (nonatomic, strong) JotTextView *textView;
-@property (nonatomic, strong) UIImage *imageToBeDrawnOn;
-@property (nonatomic, assign) CGRect imageContainerBounds;
-@property (nonatomic, assign) CGFloat outputScaleFactor;
+@property (nonatomic, weak) UIImageView *imageView;
 
 @end
 
@@ -85,9 +84,8 @@ NSString const* kDate = @"Date";
 }
 
 - (void)setupForImageView:(UIImageView *)imageView {
-    self.imageToBeDrawnOn = imageView.image;
-    self.imageContainerBounds = imageView.bounds;
-    [_drawView setupForImage:imageView];
+    self.imageView = imageView;
+    [_drawView setupForImageView:imageView];
 }
 
 - (void)viewDidLoad
@@ -303,7 +301,13 @@ NSString const* kDate = @"Date";
 - (UIImage *)drawOnImage
 {
     UIImage *drawImage = [self.drawView drawOnImage];
-    return [self.textView drawTextOnImage:drawImage withImageContainerBounds:self.imageContainerBounds];
+//    return drawImage;
+    return [self.textView drawTextImageWithScale:[self.imageView scaleFactorForAspectFill]
+                                 backgroundImage:drawImage];
+    
+    
+    
+//    return [self.textView drawTextOnImage:drawImage withImageContainerBounds:self.imageContainerBounds];
 }
 
 - (UIImage *)renderImage

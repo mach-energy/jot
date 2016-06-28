@@ -147,7 +147,7 @@ extern NSString const* kUndoArray;
  *  @note This method only needs to be called if the image being drawn on has been scaled.
  *  The UIImageView is needed to calculate the proper scaling for rendering.
  */
-- (void)setupForImage:(UIImageView *)imageView;
+- (void)setupForImageView:(UIImageView *)imageView;
 
 /**
  *  Overlays the drawing on the image passed in on setup, rendering

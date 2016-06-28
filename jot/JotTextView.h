@@ -133,15 +133,14 @@
 /**
  *  Overlays the text on the given background image with the appropriate scaling.
  *
- *  @param image The background image to render text on top of.
- *  @param imageContainerBounds the bounds of the UIImageView containing the image.
+ *  @param image The UIImageView containing the background image to render text on top of.
  *
  *  @return An image of the rendered drawing on the background image.
  *
  *  @note Call drawOnImage: in JotViewController
  *  to trigger this method.
  */
-- (UIImage *)drawTextOnImage:(UIImage *)image withImageContainerBounds:(CGRect)imageContainerBounds;
+- (UIImage *)drawTextOnImageView:(UIImageView *)imageView;
 
 /**
  *  Overlays the text on the given background image.
@@ -166,6 +165,7 @@
  *  to trigger this method.
  */
 - (UIImage *)renderDrawTextViewWithSize:(CGSize)size;
+- (UIImage *)drawTextImageWithScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage;
 
 /**
  *  Tells the JotTextView to handle a pan gesture.
