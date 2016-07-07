@@ -31,6 +31,7 @@ NSString const* kDate = @"Date";
 @property (nonatomic, strong) JotTextEditView *textEditView;
 @property (nonatomic, strong) JotTextView *textView;
 @property (nonatomic, weak) UIImageView *imageView;
+@property (nonatomic, assign) CGPoint lastTapPoint;
 
 @end
 
@@ -138,9 +139,19 @@ NSString const* kDate = @"Date";
         self.textView.hidden =
         self.textEditView.isEditing = (state == JotViewStateEditingText);
         
-        if (state == JotViewStateEditingText
-            && [self.delegate respondsToSelector:@selector(jotViewController:isEditingText:)]) {
-            [self.delegate jotViewController:self isEditingText:YES];
+        if (state == JotViewStateEditingText) {
+            
+            if ([self.delegate respondsToSelector:@selector(jotViewController:isEditingText:)]) {
+                [self.delegate jotViewController:self isEditingText:YES];
+            }
+            CGPoint labelPosition = CGPointEqualToPoint(self.lastTapPoint, CGPointZero)
+                ? self.textView.center
+                : self.lastTapPoint;
+            JotLabel *label = [self.textView addLabelAtPosition:labelPosition];
+            self.textEditView.textString = @"";
+            self.textEditView.font = label.font;
+            self.textEditView.textColor = label.textColor;
+            self.lastTapPoint = CGPointZero;
         }
 		
 		if (state != JotViewStateText && state != JotViewStateEditingText) {
@@ -369,15 +380,14 @@ NSString const* kDate = @"Date";
 				}
 			}
 			self.textEditView.textString = label.text;
+            self.textEditView.font = label.font;
+            self.textEditView.textColor = label.textColor;
 		}
 		else {
 			// a tap on a blank space
-			label = [self.textView addLabelAtPosition:touch];
-			self.textEditView.textString = @"";
+            self.lastTapPoint = touch;
 			self.state = JotViewStateEditingText;
 		}
-		self.textEditView.font = label.font;
-		self.textEditView.textColor = label.textColor;
     }
 }
 
@@ -504,7 +514,6 @@ NSString const* kDate = @"Date";
 		[self.textView unserialize:dictionary[kLabels]];
 	}
 }
-
 
 
 #pragma mark - JotDrawViewDelegate
