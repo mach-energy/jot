@@ -320,47 +320,9 @@ NSString const* kDate = @"Date";
 - (UIImage *)drawOnImage
 {
     UIImage *drawImage = [self.drawView drawOnImage];
-    return [self.textView drawTextImageWithScale:[self.imageView scaleFactorForAspectFill]
-                                 backgroundImage:drawImage];
-}
-
-- (UIImage *)renderImage
-{
-    return [self renderImageWithScale:[UIScreen mainScreen].scale];
-}
-
-- (UIImage *)renderImageOnColor:(UIColor *)color
-{
-    return [self renderImageWithScale:[UIScreen mainScreen].scale onColor:color];
-}
-
-- (UIImage *)renderImageWithScale:(CGFloat)scale
-{
-    return [self renderImageWithSize:CGSizeMake(CGRectGetWidth(self.drawingContainer.frame) * scale,
-                                           CGRectGetHeight(self.drawingContainer.frame) * scale)];
-}
-
-- (UIImage *)renderImageWithScale:(CGFloat)scale onColor:(UIColor *)color
-{
-    return [self renderImageWithSize:CGSizeMake(CGRectGetWidth(self.drawingContainer.frame) * scale,
-                                                CGRectGetHeight(self.drawingContainer.frame) * scale)
-                             onColor:color];
-}
-
-- (UIImage *)renderImageWithSize:(CGSize)size
-{
-    UIImage *renderDrawingImage = [self.drawView renderDrawingWithSize:size];
-    
-    return [self.textView drawTextOnImage:renderDrawingImage];
-}
-
-- (UIImage *)renderImageWithSize:(CGSize)size onColor:(UIColor *)color
-{
-    UIImage *colorImage = [UIImage jotImageWithColor:color size:size];
-    
-    UIImage *renderDrawingImage = [self.drawView drawOnImage:colorImage];
-    
-    return [self.textView drawTextOnImage:renderDrawingImage];
+    return [self.textView drawTextOnImage:drawImage
+                          withScaledFrame:[self.imageView frameForAspectFillImage]
+                              scaleFactor:[self.imageView scaleFactorForAspectFill]];
 }
 
 #pragma mark - Gestures

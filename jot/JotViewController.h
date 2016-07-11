@@ -239,35 +239,6 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  */
 - (UIImage *)drawOnImage;
 
-/**
- *  Renders the drawing and text at the view's size with a transparent background.
- *
- *  @return An image of the rendered drawing and text.
- */
-- (UIImage *)renderImage;
-
-/**
- *  Renders the drawing and text at the view's size with a colored background.
- *
- *  @return An image of the rendered drawing and text on a colored background.
- */
-- (UIImage *)renderImageOnColor:(UIColor *)color;
-
-/**
- *  Renders the drawing and text at the view's size multiplied by the given scale
- *  with a transparent background.
- *
- *  @return An image of the rendered drawing and text.
- */
-- (UIImage *)renderImageWithScale:(CGFloat)scale;
-
-/**
- *  Renders the drawing and text at the view's size multiplied by the given scale
- *  with a colored background.
- *
- *  @return An image of the rendered drawing and text on a colored background.
- */
-- (UIImage *)renderImageWithScale:(CGFloat)scale onColor:(UIColor *)color;
 
 #pragma mark - Serialization
 

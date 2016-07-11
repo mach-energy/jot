@@ -295,19 +295,7 @@
 
 #pragma mark - Image Rendering
 
-- (UIImage *)renderDrawTextViewWithSize:(CGSize)size
-{
-	CGFloat scale = size.width / CGRectGetWidth(self.bounds);
-    return [self drawTextImageWithScale:scale
-						backgroundImage:nil];
-}
-
-- (UIImage *)drawTextOnImage:(UIImage *)image
-{
-    return [self drawTextImageWithScale:1.f backgroundImage:image];
-}
-
-- (UIImage *)drawTextImageWithScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
+- (UIImage *)drawTextOnImage:(UIImage *)backgroundImage withScaledFrame:(CGRect)frame scaleFactor:(CGFloat)scale
 {
 	CGSize size;
 	if (backgroundImage) {
@@ -319,7 +307,7 @@
 	}
     UIGraphicsBeginImageContextWithOptions(size, NO, 1.f);
     
-	[backgroundImage drawAtPoint:CGPointZero];
+    [backgroundImage drawAtPoint:CGPointMake(frame.origin.x/2, frame.origin.y/2)];
     CGContextScaleCTM(UIGraphicsGetCurrentContext(), scale, scale);
 	
 	_selectedLabel.selected = NO; // remove the selection border
