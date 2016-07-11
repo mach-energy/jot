@@ -144,14 +144,16 @@ NSString const* kDate = @"Date";
             if ([self.delegate respondsToSelector:@selector(jotViewController:isEditingText:)]) {
                 [self.delegate jotViewController:self isEditingText:YES];
             }
-            CGPoint labelPosition = CGPointEqualToPoint(self.lastTapPoint, CGPointZero)
+            if (![self.textView labelAtPosition:self.lastTapPoint]) {
+                CGPoint labelPosition = CGPointEqualToPoint(self.lastTapPoint, CGPointZero)
                 ? self.textView.center
                 : self.lastTapPoint;
-            JotLabel *label = [self.textView addLabelAtPosition:labelPosition];
-            self.textEditView.textString = @"";
-            self.textEditView.font = label.font;
-            self.textEditView.textColor = label.textColor;
-            self.lastTapPoint = CGPointZero;
+                JotLabel *label = [self.textView addLabelAtPosition:labelPosition];
+                self.textEditView.textString = @"";
+                self.textEditView.font = label.font;
+                self.textEditView.textColor = label.textColor;
+                self.lastTapPoint = CGPointZero;
+            }
         }
 		
 		if (state != JotViewStateText && state != JotViewStateEditingText) {
@@ -309,6 +311,10 @@ NSString const* kDate = @"Date";
 	[self.textView deleteSelectedLabel];
 }
 
+- (void)deSelectLabel {
+    [self.textView deselectLabel];
+}
+
 #pragma mark - Output UIImage
 
 - (UIImage *)drawOnImage
@@ -364,6 +370,7 @@ NSString const* kDate = @"Date";
     if (self.state == JotViewStateText) {
 		// a tap during text
 		CGPoint touch = [recognizer locationOfTouch:0 inView:self.textView];
+        self.lastTapPoint = touch;
 		JotLabel *label = [self.textView labelAtPosition:touch];
 		if (label) {
 			// a tap on a label
@@ -385,7 +392,7 @@ NSString const* kDate = @"Date";
 		}
 		else {
 			// a tap on a blank space
-            self.lastTapPoint = touch;
+            self.textEditView.textString = @"";
 			self.state = JotViewStateEditingText;
 		}
     }
