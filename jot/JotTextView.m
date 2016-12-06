@@ -305,7 +305,7 @@
 	else {
 		size = self.bounds.size;
 	}
-    UIGraphicsBeginImageContextWithOptions(size, NO, 1.f);
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
     
     [backgroundImage drawAtPoint:CGPointZero];
     CGContextScaleCTM(UIGraphicsGetCurrentContext(), scale, scale);
@@ -319,7 +319,7 @@
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return [UIImage imageWithCGImage:drawnImage.CGImage
-                               scale:1.f
+                               scale:0.f
                          orientation:drawnImage.imageOrientation];
 }
 

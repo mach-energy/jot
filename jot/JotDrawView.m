@@ -329,7 +329,7 @@ NSString const* kUndoArray = @"UndoArray";
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return [UIImage imageWithCGImage:drawnImage.CGImage
-                               scale:1.f
+                               scale:0.f
                          orientation:drawnImage.imageOrientation];
 }
 
