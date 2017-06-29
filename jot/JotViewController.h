@@ -204,6 +204,8 @@ typedef NS_ENUM(NSUInteger, JotViewState){
  */
 - (void)clearDrawing;
 
+- (BOOL)canUndoDrawing;
+
 /**
  *  Undo the last drawn line
  */

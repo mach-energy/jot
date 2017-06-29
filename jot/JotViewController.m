@@ -291,6 +291,10 @@ NSString const* kDate = @"Date";
     [self.drawView clearDrawing];
 }
 
+- (BOOL)canUndoDrawing {
+    return [self.drawView canUndo];
+}
+
 - (void)undoDrawing
 {
 	[self.drawView undo];

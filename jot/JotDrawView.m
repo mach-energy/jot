@@ -93,6 +93,10 @@ NSString const* kUndoArray = @"UndoArray";
                     completion:nil];
 }
 
+- (BOOL)canUndo {
+    return self.undoIndex > 0;
+}
+
 - (void)undo {
 	if (self.undoIndex > 0) {
 		self.undoIndex -= 1;

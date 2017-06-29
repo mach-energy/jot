@@ -72,6 +72,8 @@ extern NSString const* kUndoArray;
  */
 - (void)clearDrawing;
 
+- (BOOL)canUndo;
+
 /**
  *  Undo the last paths, from the last touchBegan event
  *
