@@ -309,7 +309,6 @@
     
     [backgroundImage drawAtPoint:CGPointZero];
     CGContextScaleCTM(UIGraphicsGetCurrentContext(), scale, scale);
-    CGContextTranslateCTM(UIGraphicsGetCurrentContext(), -frame.origin.x/2, -frame.origin.y/2);
 	
 	_selectedLabel.selected = NO; // remove the selection border
 
