@@ -10,7 +10,7 @@
 
 @interface UIImageView (ImageFrame)
 
-- (CGRect)frameForAspectFillImage;
-- (CGFloat)scaleFactorForAspectFill;
+- (CGRect)frameForImage;
+- (CGFloat)scaleFactorForImage;
 
 @end

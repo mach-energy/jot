@@ -162,7 +162,7 @@ NSString const* kUndoArray = @"UndoArray";
     self.pointsCounter = 0;
     [self.pointsArray removeAllObjects];
 	JotTouchPoint *touchPoint = [JotTouchPoint withPoint:point
-                                             scaleFactor:[self.imageView scaleFactorForAspectFill]];
+                                             scaleFactor:[self.imageView scaleFactorForImage]];
     [self.pointsArray addObject:touchPoint];
 	
 	touchPoint.strokeWidth = self.strokeWidth;
@@ -179,19 +179,19 @@ NSString const* kUndoArray = @"UndoArray";
 {
     self.pointsCounter += 1;
     [self.pointsArray addObject:[JotTouchPoint withPoint:touchPoint
-                                             scaleFactor:[self.imageView scaleFactorForAspectFill]]];
+                                             scaleFactor:[self.imageView scaleFactorForImage]]];
     
     if (self.pointsCounter == 4) {
         
         self.pointsArray[3] = [JotTouchPoint withPoint:CGPointMake(([self.pointsArray[2] CGPointValue].x + [self.pointsArray[4] CGPointValue].x)/2.f,
                                                                    ([self.pointsArray[2] CGPointValue].y + [self.pointsArray[4] CGPointValue].y)/2.f)
-                                           scaleFactor:[self.imageView scaleFactorForAspectFill]];
+                                           scaleFactor:[self.imageView scaleFactorForImage]];
 		
 		JotTouchBezier *bezierPath = [JotTouchBezier withStartPoint:[self.pointsArray[0] CGPointValue]
 														   endPoint:[self.pointsArray[3] CGPointValue]
 													  controlPoint1:[self.pointsArray[1] CGPointValue]
 													  controlPoint2:[self.pointsArray[2] CGPointValue]
-                                                        scaleFactor:[self.imageView scaleFactorForAspectFill]];
+                                                        scaleFactor:[self.imageView scaleFactorForImage]];
 		bezierPath.strokeColor = self.strokeColor;
 		bezierPath.constantWidth = self.constantStrokeWidth;
 		
@@ -315,19 +315,15 @@ NSString const* kUndoArray = @"UndoArray";
 
 - (UIImage *)drawAllPathsImageScale:(CGFloat)scale backgroundImage:(UIImage *)backgroundImage
 {
-    CGRect scaledImageFrame = [self.imageView frameForAspectFillImage];
-    CGSize finalImageSize = CGSizeMake(backgroundImage.size.width + scaledImageFrame.origin.x*2,
-                                       backgroundImage.size.height + scaledImageFrame.origin.y*2);
+    CGSize finalImageSize = CGSizeMake(backgroundImage.size.width,
+                                       backgroundImage.size.height);
     UIGraphicsBeginImageContextWithOptions(finalImageSize, NO, scale);
     
-    [backgroundImage drawInRect:CGRectMake(scaledImageFrame.origin.x,
-                                           scaledImageFrame.origin.y,
+    [backgroundImage drawInRect:CGRectMake(0,
+                                           0,
                                            backgroundImage.size.width,
                                            backgroundImage.size.height)];
 	
-    CGContextTranslateCTM(UIGraphicsGetCurrentContext(),
-                          -scaledImageFrame.origin.x/2,
-                          -scaledImageFrame.origin.y/2);
     [self drawAllPaths];
     
     UIImage *drawnImage = UIGraphicsGetImageFromCurrentImageContext();
