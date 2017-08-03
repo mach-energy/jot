@@ -303,7 +303,7 @@ NSString const* kUndoArray = @"UndoArray";
 
 - (UIImage *)drawOnImage
 {
-	return [self drawAllPathsImageScale:1.f
+	return [self drawAllPathsImageScale:self.imageView.image.scale
                         backgroundImage:self.imageView.image];
 }
 

@@ -297,6 +297,10 @@
 
 - (UIImage *)drawTextOnImage:(UIImage *)backgroundImage withScaledFrame:(CGRect)frame scaleFactor:(CGFloat)scale
 {
+    if (_labels.count == 0) {
+        return backgroundImage;
+    }
+    
 	CGSize size;
 	if (backgroundImage) {
 		CGRect maxRect = CGRectUnion(self.bounds, CGRectMake(0, 0, backgroundImage.size.width, backgroundImage.size.height));
