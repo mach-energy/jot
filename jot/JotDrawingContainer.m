@@ -60,6 +60,11 @@
 					   roundf(point.y / (float)self.discreteGridSize)*self.discreteGridSize);
 }
 
+// allow Jot to be used within a .pageSheet modal
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    return !([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark GETTERS
